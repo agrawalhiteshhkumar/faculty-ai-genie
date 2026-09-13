@@ -1,0 +1,6 @@
+{
+  "name": "Faculty AI Genie",
+  "description": "AI-powered academic operating system for institutions to plan, teach, create, assess, track students, measure outcomes, and maintain statutory accreditation evidence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
