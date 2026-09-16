@@ -380,7 +380,6 @@ export const ActivationGateway: React.FC<ActivationGatewayProps> = ({
               Compliant with Pharmacy Council of India (PCI ER-2020), MSBTE CIAAN-2023, & NBA Tier-II guidelines.
             </p>
 
-          {/* Institutional Pilot & Access Request */}
           <div className="mt-6 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
             <p className="text-xs text-slate-300 font-medium">
               Want to onboard your pharmacy institute or request a trial license key?
@@ -389,7 +388,7 @@ export const ActivationGateway: React.FC<ActivationGatewayProps> = ({
               href="mailto:agrawal.hiteshkumar@gmail.com?subject=Institutional%20Access%20Request"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300 underline mt-2"
             >
-              Request Institutional Access & License Key &rarr;
+              Request Institutional Access &amp; License Key →
             </a>
           </div>
         </div>
