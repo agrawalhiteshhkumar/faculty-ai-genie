@@ -379,7 +379,7 @@ export const ActivationGateway: React.FC<ActivationGatewayProps> = ({
             <p className="text-[11px] text-slate-600">
               Compliant with Pharmacy Council of India (PCI ER-2020), MSBTE CIAAN-2023, & NBA Tier-II guidelines.
             </p>
-
+{/* Institutional Pilot & Access Request */}
           <div className="mt-6 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
             <p className="text-xs text-slate-300 font-medium">
               Want to onboard your pharmacy institute or request a trial license key?
@@ -392,8 +392,9 @@ export const ActivationGateway: React.FC<ActivationGatewayProps> = ({
             </a>
           </div>
         </div>
-      </main>
-     {/* Footer */}
+      </div>
+
+      {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950/80 px-6 py-3 text-center text-xs text-slate-500">
         Faculty AI Genie Institutional Gateway v2.4 • Platform Super Admin: <code className="text-slate-400 font-mono">agrawal.hiteshkumar@gmail.com</code>
       </footer>
