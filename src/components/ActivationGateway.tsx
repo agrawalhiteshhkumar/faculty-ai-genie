@@ -381,7 +381,6 @@ export const ActivationGateway: React.FC<ActivationGatewayProps> = ({
             </p>
 
           {/* Institutional Pilot & Access Request */}
-          {/* Institutional Pilot & Access Request */}
           <div className="mt-6 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
             <p className="text-xs text-slate-300 font-medium">
               Want to onboard your pharmacy institute or request a trial license key?
