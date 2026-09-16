@@ -391,9 +391,6 @@ export const ActivationGateway: React.FC<ActivationGatewayProps> = ({
               Request Institutional Access &amp; License Key →
             </a>
           </div>
-        </div>
-      </div>
-
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950/80 px-6 py-3 text-center text-xs text-slate-500">
         Faculty AI Genie Institutional Gateway v2.4 • Platform Super Admin: <code className="text-slate-400 font-mono">agrawal.hiteshkumar@gmail.com</code>
