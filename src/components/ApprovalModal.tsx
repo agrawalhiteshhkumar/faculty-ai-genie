@@ -11,26 +11,26 @@ import {
   Lock 
 } from 'lucide-react';
 
-interface ApprovalModalProps {
+export interface ApprovalModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   itemType: 'Lesson Plan' | 'Question Paper' | 'Teaching Diary' | 'Marks Register' | 'ATR' | 'License Request';
   submittedBy: string;
   department: string;
-  details: { label: string; value: string }[];
+  details?: { label: string; value: string }[];
   onApprove: (remarks: string) => Promise<void> | void;
   onReject: (remarks: string) => Promise<void> | void;
 }
 
-export default function ApprovalModal({
+export function ApprovalModal({
   isOpen,
   onClose,
   title,
   itemType,
   submittedBy,
   department,
-  details,
+  details = [],
   onApprove,
   onReject
 }: ApprovalModalProps) {
@@ -182,3 +182,5 @@ export default function ApprovalModal({
     </div>
   );
 }
+
+export default ApprovalModal;
