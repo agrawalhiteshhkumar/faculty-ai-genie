@@ -194,9 +194,14 @@ export default function App() {
     }
   };
 
-  // Super Admin Action Handlers
+  // Super Admin Action Handlers (Keeps you logged in seamlessly)
   const handleOpenSuperAdmin = () => {
-    setIsSuperAdminLoginModalOpen(true);
+    if (isSuperAdminUser || localStorage.getItem('faculty_genie_superadmin_auth') === 'true') {
+      setIsSuperAdminUser(true);
+      setIsSuperAdminViewOpen(true);
+    } else {
+      setIsSuperAdminLoginModalOpen(true);
+    }
   };
 
   const handleSuperAdminLoginSuccess = () => {
@@ -262,7 +267,7 @@ export default function App() {
     }
   };
 
-  // Load Sample Regulatory Dataset (PCI & MSBTE K-Scheme)
+  // Load Sample Regulatory Dataset (PCI & MSBTE J-Scheme)
   const handleLoadSampleDataset = async () => {
     const res = await fetchTenant('/api/masters/sample', { method: 'POST' });
     const data = await res.json();
