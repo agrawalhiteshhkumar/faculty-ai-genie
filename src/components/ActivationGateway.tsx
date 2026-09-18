@@ -13,12 +13,12 @@ import {
   BookOpen
 } from 'lucide-react';
 
-interface ActivationGatewayProps {
+export interface ActivationGatewayProps {
   onActivated?: () => void;
   onOpenSuperAdmin?: () => void;
 }
 
-export default function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationGatewayProps) {
+export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationGatewayProps) {
   const [licenseKey, setLicenseKey] = useState('');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
@@ -64,11 +64,9 @@ export default function ActivationGateway({ onActivated, onOpenSuperAdmin }: Act
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col justify-between p-4 sm:p-6 md:p-8">
-      
-      {/* Top Header */}
       <div className="w-full max-w-xl mx-auto flex justify-between items-center text-xs">
         <div className="flex items-center gap-1.5 font-bold text-blue-900 tracking-wide">
-          <BookOpen className="w-4 h-4 text-blue-700" />
+          <BookOpen className="w-4 h-4 text-blue-700"/>
           <span>FACULTY AI GENIE™</span>
         </div>
         {onOpenSuperAdmin && (
@@ -82,13 +80,11 @@ export default function ActivationGateway({ onActivated, onOpenSuperAdmin }: Act
         )}
       </div>
 
-      {/* Main Activation Card */}
       <div className="w-full max-w-xl mx-auto my-auto py-4">
         <div className="bg-white border border-slate-200 rounded-2xl shadow-xl p-5 sm:p-8 space-y-6">
-          
           <div className="text-center space-y-2">
             <div className="inline-flex p-3 bg-blue-50 border border-blue-100 rounded-2xl text-blue-700 mb-1">
-              <ShieldCheck className="w-8 h-8" />
+              <ShieldCheck className="w-8 h-8"/>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
               Institutional Workspace Activation
@@ -104,7 +100,7 @@ export default function ActivationGateway({ onActivated, onOpenSuperAdmin }: Act
                 Institutional License Key
               </label>
               <div className="relative">
-                <KeyRound className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <KeyRound className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"/>
                 <input
                   id="licenseKey"
                   type="text"
@@ -119,7 +115,7 @@ export default function ActivationGateway({ onActivated, onOpenSuperAdmin }: Act
 
             {statusMessage && (
               <div className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs">
-                <AlertCircle className="w-4 h-4 shrink-0" />
+                <AlertCircle className="w-4 h-4 shrink-0"/>
                 <span>{statusMessage}</span>
               </div>
             )}
@@ -130,13 +126,13 @@ export default function ActivationGateway({ onActivated, onOpenSuperAdmin }: Act
               className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 disabled:opacity-50 text-white rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-700/20"
             >
               <span>{isValidating ? 'Validating Credentials...' : 'Activate Institution Workspace'}</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4"/>
             </button>
           </form>
 
           <div className="p-4 rounded-xl border border-blue-100 bg-blue-50/60 space-y-2.5">
             <div className="flex items-center gap-2 text-blue-900">
-              <Building2 className="w-4 h-4 shrink-0 text-blue-700" />
+              <Building2 className="w-4 h-4 shrink-0 text-blue-700"/>
               <h2 className="text-xs font-bold uppercase tracking-wider">
                 Request Institutional Pilot Access
               </h2>
@@ -148,31 +144,30 @@ export default function ActivationGateway({ onActivated, onOpenSuperAdmin }: Act
               href={institutionalEmailHref}
               className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 hover:text-blue-900 transition-colors pt-1"
             >
-              <Mail className="w-3.5 h-3.5" />
+              <Mail className="w-3.5 h-3.5"/>
               <span>Contact Platform Super Admin</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3.5 h-3.5"/>
             </a>
           </div>
 
           <div className="flex items-start gap-2 text-[11px] text-slate-500">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"/>
             <span>
               Multi-tenant architecture: Each institution operates with dedicated data isolation and PostgreSQL Row-Level Security (RLS).
             </span>
           </div>
-
         </div>
       </div>
 
-      {/* Footer */}
       <div className="w-full max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-1.5 pt-2">
         <span>FACULTY AI GENIE™ • Academic Operating System</span>
         <span className="flex items-center gap-1">
-          <HelpCircle className="w-3 h-3 text-slate-400" />
+          <HelpCircle className="w-3 h-3 text-slate-400"/>
           Technical Support &amp; Governance
         </span>
       </div>
-
     </div>
   );
 }
+
+export default ActivationGateway;
