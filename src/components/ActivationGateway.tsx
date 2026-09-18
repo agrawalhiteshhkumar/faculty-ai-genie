@@ -8,12 +8,12 @@ import {
   Mail, 
   ArrowRight, 
   CheckCircle2, 
-  AlertCircle,
-  HelpCircle,
-  BookOpen,
-  X,
-  Copy,
-  Send
+  AlertCircle, 
+  HelpCircle, 
+  BookOpen, 
+  X, 
+  Copy, 
+  Send 
 } from 'lucide-react';
 
 export interface ActivationGatewayProps {
@@ -32,7 +32,10 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [reqForm, setReqForm] = useState({
     instName: '',
-    instCode: '',
+    aisheCode: '',
+    dteCode: '',
+    msbteCode: '',
+    pciCode: '',
     contactName: '',
     email: '',
     phone: '',
@@ -63,10 +66,13 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
   const emailText = 
     `FACULTY AI GENIE — Institutional Pilot Request\n` +
     `To: agrawal.hiteshkumar@gmail.com\n\n` +
-    `Institution: ${reqForm.instName || '[Institute Name]'}\n` +
-    `Code: ${reqForm.instCode || '[DTE/MSBTE/PCI Code]'}\n` +
-    `Curriculum: ${reqForm.scheme}\n` +
-    `Contact: ${reqForm.contactName || '[Name]'}\n` +
+    `Institution Name: ${reqForm.instName || '[Institute Name]'}\n` +
+    `AISHE Code: ${reqForm.aisheCode || '[AISHE Code]'}\n` +
+    `DTE Code: ${reqForm.dteCode || '[DTE Code]'}\n` +
+    `MSBTE Code: ${reqForm.msbteCode || '[MSBTE Code]'}\n` +
+    `PCI Code: ${reqForm.pciCode || '[PCI Code]'}\n` +
+    `Curriculum Scheme: ${reqForm.scheme}\n` +
+    `Authorized Contact Person: ${reqForm.contactName || '[Name]'}\n` +
     `Official Email: ${reqForm.email || '[Email]'}\n` +
     `Phone: ${reqForm.phone || '[Phone]'}`;
 
@@ -82,7 +88,7 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col justify-between p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col justify-between p-4 sm:p-6 md:p-8 font-sans">
       {/* Top Header */}
       <div className="w-full max-w-xl mx-auto flex justify-between items-center text-xs">
         <div className="flex items-center gap-1.5 font-bold text-blue-900 tracking-wide">
@@ -93,7 +99,7 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
           <button 
             type="button" 
             onClick={onOpenSuperAdmin}
-            className="text-slate-500 hover:text-blue-700 font-medium transition-colors"
+            className="text-slate-500 hover:text-blue-700 font-medium transition-colors cursor-pointer"
           >
             SuperAdmin Access
           </button>
@@ -191,10 +197,10 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
         </span>
       </div>
 
-      {/* REQUEST ACCESS IN-APP MODAL (Bypasses desktop mail apps) */}
+      {/* REQUEST ACCESS IN-APP MODAL */}
       {isRequestModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl max-w-lg w-full space-y-4 my-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-2xl max-w-xl w-full space-y-4 my-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2 text-blue-900 font-bold">
                 <Building2 className="w-5 h-5 text-blue-700" />
@@ -205,7 +211,7 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
                   setIsRequestModalOpen(false);
                   setFormSubmitted(false);
                 }}
-                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg"
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -218,9 +224,9 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
                 </div>
                 <h3 className="text-base font-bold text-slate-900">Request Prepared Successfully!</h3>
                 <p className="text-xs text-slate-600 max-w-sm mx-auto leading-relaxed">
-                  Your institutional onboarding details have been compiled for MSBTE J-Scheme &amp; PCI ER-2020. You can copy or send them below:
+                  Your institutional accreditation profile has been compiled. You can copy the request dossier or dispatch it via your preferred mail client:
                 </p>
-                <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-left font-mono text-xs text-slate-700 whitespace-pre-wrap">
+                <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-left font-mono text-xs text-slate-700 whitespace-pre-wrap max-h-52 overflow-y-auto">
                   {emailText}
                 </div>
                 <div className="flex items-center justify-center gap-3 pt-2">
@@ -242,11 +248,12 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleRequestSubmit} className="space-y-3 text-xs">
+              <form onSubmit={handleRequestSubmit} className="space-y-3.5 text-xs">
                 <p className="text-slate-500 text-[11px] leading-relaxed">
-                  Provide your institution's statutory credentials to initiate multi-tenant license key generation for MSBTE J-Scheme.
+                  Provide your institution's statutory credentials across AISHE, DTE, MSBTE, and PCI to initiate multi-tenant license key generation.
                 </p>
 
+                {/* College Legal Name */}
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Institution Legal Name *</label>
                   <input
@@ -259,18 +266,59 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                {/* 4 Separate Statutory Codes Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">Institute Code *</label>
+                    <label className="block font-bold text-slate-700 mb-1">AISHE Code *</label>
                     <input
                       type="text"
                       required
-                      placeholder="AISHE / DTE / MSBTE / PCI"
-                      value={reqForm.instCode}
-                      onChange={(e) => setReqForm({ ...reqForm, instCode: e.target.value })}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
+                      placeholder="e.g. C-45123"
+                      value={reqForm.aisheCode}
+                      onChange={(e) => setReqForm({ ...reqForm, aisheCode: e.target.value })}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none font-mono text-[11px]"
                     />
                   </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">DTE Code *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 5225"
+                      value={reqForm.dteCode}
+                      onChange={(e) => setReqForm({ ...reqForm, dteCode: e.target.value })}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none font-mono text-[11px]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">MSBTE Code *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 1152"
+                      value={reqForm.msbteCode}
+                      onChange={(e) => setReqForm({ ...reqForm, msbteCode: e.target.value })}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none font-mono text-[11px]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">PCI Code *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. PCI-2144"
+                      value={reqForm.pciCode}
+                      onChange={(e) => setReqForm({ ...reqForm, pciCode: e.target.value })}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none font-mono text-[11px]"
+                    />
+                  </div>
+                </div>
+
+                {/* Scheme & Coordinator Name */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Curriculum Scheme</label>
                     <input
@@ -280,11 +328,8 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
                       className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
                     />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">Authorized Person *</label>
+                    <label className="block font-bold text-slate-700 mb-1">Authorized Coordinator / HOD *</label>
                     <input
                       type="text"
                       required
@@ -294,8 +339,12 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
                       className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
                     />
                   </div>
+                </div>
+
+                {/* Contact Email & Phone */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">Official Email *</label>
+                    <label className="block font-bold text-slate-700 mb-1">Official Institutional Email *</label>
                     <input
                       type="email"
                       required
@@ -305,20 +354,19 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
                       className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
                     />
                   </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Phone / WhatsApp Number</label>
+                    <input
+                      type="tel"
+                      placeholder="+91 98XXXXXXXX"
+                      value={reqForm.phone}
+                      onChange={(e) => setReqForm({ ...reqForm, phone: e.target.value })}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Phone / WhatsApp Number</label>
-                  <input
-                    type="tel"
-                    placeholder="+91 98XXXXXXXX"
-                    value={reqForm.phone}
-                    onChange={(e) => setReqForm({ ...reqForm, phone: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
-                  />
-                </div>
-
-                <div className="pt-2 flex items-center justify-end gap-2">
+                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
                   <button
                     type="button"
                     onClick={() => setIsRequestModalOpen(false)}
@@ -330,7 +378,7 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
                     type="submit"
                     className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl shadow-md cursor-pointer"
                   >
-                    Submit Request
+                    Submit Request Dossier
                   </button>
                 </div>
               </form>
@@ -338,7 +386,6 @@ export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationG
           </div>
         </div>
       )}
-
     </div>
   );
 }
