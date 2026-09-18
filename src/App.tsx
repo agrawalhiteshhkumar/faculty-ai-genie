@@ -39,6 +39,11 @@ export default function App() {
   const [activeRole, setActiveRole] = useState<UserRole>('FACULTY');
   const [currentTab, setCurrentTab] = useState<NavTab>('HOME');
 
+  // Super Admin Priority State
+  const [isSuperAdminViewOpen, setIsSuperAdminViewOpen] = useState(false);
+  const [isSuperAdminLoginModalOpen, setIsSuperAdminLoginModalOpen] = useState(false);
+  const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
+
   // Multi-Tenant Session State
   const [tenantId, setTenantId] = useState<string | null>(() => {
     return localStorage.getItem('faculty_genie_tenant_id') || null;
@@ -49,13 +54,8 @@ export default function App() {
   const [license, setLicense] = useState<InstitutionalLicense | null>(null);
   const [activationError, setActivationError] = useState<string | null>(null);
 
-  // Super Admin Control Plane State
-  const [isSuperAdminViewOpen, setIsSuperAdminViewOpen] = useState(false);
-  const [isSuperAdminLoginModalOpen, setIsSuperAdminLoginModalOpen] = useState(false);
-  const [isSuperAdminUser, setIsSuperAdminUser] = useState<boolean>(false);
-
   // Core Institutional State
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [institution, setInstitution] = useState<InstitutionProfile | null>(null);
   const [subject, setSubject] = useState<SubjectMaster | null>(null);
   const [facultyList, setFacultyList] = useState<FacultyMaster[]>([]);
@@ -100,6 +100,7 @@ export default function App() {
     }
 
     try {
+      setLoading(true);
       const res = await fetchTenant('/api/bootstrap');
       const data = await res.json();
 
@@ -137,8 +138,10 @@ export default function App() {
   }, [fetchTenant, tenantId, licenseKey]);
 
   useEffect(() => {
-    fetchBootstrapData();
-  }, [fetchBootstrapData]);
+    if (tenantId && licenseKey) {
+      fetchBootstrapData();
+    }
+  }, [fetchBootstrapData, tenantId, licenseKey]);
 
   // Handle License Activation Success from Gateway
   const handleActivationSuccess = (
@@ -155,7 +158,6 @@ export default function App() {
     setLicenseKey(key);
     if (newLicense) setLicense(newLicense);
     setActivationError(null);
-    setLoading(true);
 
     if (configured) {
       setCurrentTab('HOME');
@@ -168,11 +170,10 @@ export default function App() {
     }, 100);
   };
 
-  // Clean Exit / Logout of Workspace
+  // Logout / Clean Session Reset
   const handleExitWorkspace = () => {
     localStorage.removeItem('faculty_genie_tenant_id');
     localStorage.removeItem('faculty_genie_license_key');
-    localStorage.removeItem('faculty_genie_superadmin_auth');
     setTenantId(null);
     setLicenseKey(null);
     setLicense(null);
@@ -188,12 +189,12 @@ export default function App() {
     setActionTakenReports([]);
     setTeachingDiaryEntries([]);
     setAuditLogs([]);
-    setIsSuperAdminUser(false);
     setIsSuperAdminViewOpen(false);
+    setIsSuperAdminUser(false);
     setCurrentTab('HOME');
   };
 
-  // Super Admin Action Handlers
+  // Super Admin Control Handlers
   const handleOpenSuperAdmin = () => {
     setIsSuperAdminLoginModalOpen(true);
   };
@@ -204,10 +205,9 @@ export default function App() {
     setIsSuperAdminViewOpen(true);
   };
 
-  // When clicking "Exit Gateway" inside SuperAdminDashboard
   const handleExitSuperAdmin = () => {
     setIsSuperAdminViewOpen(false);
-    handleExitWorkspace();
+    setIsSuperAdminUser(false);
   };
 
   // Institution Profile Save Handler
@@ -368,7 +368,6 @@ export default function App() {
     }
   };
 
-  // Trigger test action 2 (generate package)
   const handleTriggerGeneratePackage = async () => {
     await fetchTenant('/api/ai/generate-package', {
       method: 'POST',
@@ -380,16 +379,15 @@ export default function App() {
     fetchBootstrapData();
   };
 
-  // Trigger test action 3 (save marks)
   const handleTriggerSaveMarks = async () => {
     await handleSaveMarks(studentMarks);
   };
 
-  // ---------------------------------------------------------------------------
-  // VIEW ROUTING
-  // ---------------------------------------------------------------------------
+  // ===========================================================================
+  // STRICT ROUTING ORDER: SuperAdmin view ALWAYS wins when activated
+  // ===========================================================================
 
-  // 1. Super Admin Full Dashboard View
+  // 1. Super Admin Dashboard (Top Priority)
   if (isSuperAdminViewOpen) {
     return (
       <SuperAdminDashboard
@@ -415,7 +413,7 @@ export default function App() {
     );
   }
 
-  // 3. Activation Gateway (When no tenant session is active or access is locked)
+  // 3. Activation Gateway (When no tenant session is active)
   if (!tenantId || !licenseKey) {
     return (
       <>
@@ -450,7 +448,7 @@ export default function App() {
     currentFaculty.employmentType === 'ADJUNCT_VISITING' ||
     currentFaculty.employmentType === 'GUEST_LECTURER';
 
-  // 4. Initial Institution Setup Screen
+  // 4. Initial Institution Setup View (When institutional master profile is blank)
   if (!institution || !institution.name) {
     return (
       <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
@@ -492,7 +490,7 @@ export default function App() {
     );
   }
 
-  // 5. Full Working Application Dashboard
+  // 5. Full Academic OS Dashboard
   const pendingAttendanceCount = timetable.filter((s) => !s.status.attendanceMarked).length;
   const defaultersCount = students.filter((s) => s.isDefaulter).length;
   const lowAttainmentCount = coAttainment.filter((c) => !c.isAttained && c.studentsAttempted > 0).length;
