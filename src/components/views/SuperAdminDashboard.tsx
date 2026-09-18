@@ -8,12 +8,10 @@ import {
   Users, 
   GraduationCap, 
   CheckCircle2, 
-  Clock, 
   RotateCcw,
   ShieldCheck,
-  Key,
   Copy,
-  ExternalLink
+  FileCheck
 } from 'lucide-react';
 
 interface SuperAdminDashboardProps {
@@ -23,7 +21,10 @@ interface SuperAdminDashboardProps {
 interface Tenant {
   id: string;
   name: string;
-  code: string;
+  aisheCode: string;
+  dteCode: string;
+  msbteCode: string;
+  pciCode: string;
   coordinatorEmail: string;
   licenseKey: string;
   facultySeats: number;
@@ -39,23 +40,30 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
 
   const [showProvisionModal, setShowProvisionModal] = useState(false);
   const [instName, setInstName] = useState('');
-  const [instCode, setInstCode] = useState('');
+  const [aisheCode, setAisheCode] = useState('');
+  const [dteCode, setDteCode] = useState('');
+  const [msbteCode, setMsbteCode] = useState('');
+  const [pciCode, setPciCode] = useState('');
   const [instEmail, setInstEmail] = useState('');
   const [seats, setSeats] = useState(25);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const handleProvision = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!instName.trim() || !instCode.trim()) return;
+    if (!instName.trim()) return;
 
+    // Use DTE or MSBTE code for the license key prefix
+    const keySeed = (dteCode.trim() || msbteCode.trim() || 'INST').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
     const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-    const cleanCode = instCode.trim().replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-    const newKey = `GENIE-INST-${cleanCode}-${randomSuffix}`;
+    const newKey = `GENIE-INST-${keySeed}-${randomSuffix}`;
 
     const newTenant: Tenant = {
       id: Date.now().toString(),
       name: instName.trim(),
-      code: cleanCode,
+      aisheCode: aisheCode.trim().toUpperCase(),
+      dteCode: dteCode.trim().toUpperCase(),
+      msbteCode: msbteCode.trim().toUpperCase(),
+      pciCode: pciCode.trim().toUpperCase(),
       coordinatorEmail: instEmail.trim(),
       licenseKey: newKey,
       facultySeats: Number(seats) || 25,
@@ -68,7 +76,10 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
     localStorage.setItem('genie_tenants', JSON.stringify(updated));
 
     setInstName('');
-    setInstCode('');
+    setAisheCode('');
+    setDteCode('');
+    setMsbteCode('');
+    setPciCode('');
     setInstEmail('');
     setShowProvisionModal(false);
   };
@@ -89,7 +100,7 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       
-      {/* Top Professional App Bar (Crisp Navy & White) */}
+      {/* Top App Bar */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
@@ -104,7 +115,7 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
                     SUPERADMIN PORTAL
                   </span>
                 </div>
-                <p className="text-xs text-slate-500">Global Tenant Provisioning &amp; Statutory Compliance Control</p>
+                <p className="text-xs text-slate-500">Statutory Multi-Tenant Orchestrator (AISHE • DTE • MSBTE • PCI)</p>
               </div>
             </div>
           </div>
@@ -112,14 +123,14 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <button
               onClick={() => setShowProvisionModal(true)}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-xl shadow-sm transition-all"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Provision &amp; Onboard Institution</span>
             </button>
             <button
               onClick={onExit}
-              className="flex items-center gap-1 px-3 py-2 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition-all"
+              className="flex items-center gap-1 px-3 py-2 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition-all cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Exit Gateway</span>
@@ -128,10 +139,10 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
         </div>
       </header>
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full space-y-6 flex-1">
         
-        {/* KPI Metric Cards (Blue / White Scaffolding) */}
+        {/* KPI Metric Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between">
@@ -164,25 +175,25 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
 
           <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">NBA / PCI Audits</span>
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Statutory Verification</span>
               <GraduationCap className="w-4 h-4 text-indigo-600" />
             </div>
             <p className="text-2xl font-extrabold text-slate-900 mt-2">100%</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">CIAAN-2023 Compliant</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">MSBTE J-Scheme &amp; PCI ER-2020</p>
           </div>
         </div>
 
-        {/* Tenant Directory Table / List */}
+        {/* Tenant Directory Table */}
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
           <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between">
             <div>
               <h2 className="text-sm font-bold text-slate-900">Provisioned Institutions &amp; Active Licenses</h2>
-              <p className="text-xs text-slate-500 mt-0.5">Share the generated license keys with college coordinators to grant them entry.</p>
+              <p className="text-xs text-slate-500 mt-0.5">All 4 statutory credentials (AISHE, DTE, MSBTE, PCI) mapped to isolated tenant workspaces.</p>
             </div>
             {tenants.length > 0 && (
               <button
                 onClick={handleReset}
-                className="flex items-center gap-1 text-xs text-rose-600 hover:text-rose-800 font-semibold transition-colors"
+                className="flex items-center gap-1 text-xs text-rose-600 hover:text-rose-800 font-semibold transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset Slate</span>
@@ -197,11 +208,11 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
               </div>
               <h3 className="text-sm font-bold text-slate-800">No Institutional Tenants Provisioned Yet</h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Click "Provision &amp; Onboard Institution" to generate your first collegiate license key and activate an isolated tenant workspace.
+                Click "Provision &amp; Onboard Institution" to register an institute with its AISHE, DTE, MSBTE, and PCI codes.
               </p>
               <button
                 onClick={() => setShowProvisionModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-xl shadow-sm transition-all"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Onboard First Institution</span>
@@ -213,8 +224,8 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
                 <thead>
                   <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
                     <th className="py-3 px-4">College / Institute Name</th>
-                    <th className="py-3 px-4">Code</th>
-                    <th className="py-3 px-4">Coordinator Email</th>
+                    <th className="py-3 px-4">Statutory Codes</th>
+                    <th className="py-3 px-4">Official Email</th>
                     <th className="py-3 px-4">Institutional License Key</th>
                     <th className="py-3 px-4">Seats</th>
                     <th className="py-3 px-4">Status</th>
@@ -224,7 +235,14 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
                   {tenants.map((t) => (
                     <tr key={t.id} className="hover:bg-blue-50/50 transition-colors">
                       <td className="py-3 px-4 font-bold text-slate-900">{t.name}</td>
-                      <td className="py-3 px-4 text-slate-600 font-mono">{t.code}</td>
+                      <td className="py-3 px-4 text-slate-600 font-mono text-[11px]">
+                        <div className="space-y-0.5">
+                          {t.aisheCode && <div><span className="text-slate-400 font-sans">AISHE:</span> {t.aisheCode}</div>}
+                          {t.dteCode && <div><span className="text-slate-400 font-sans">DTE:</span> {t.dteCode}</div>}
+                          {t.msbteCode && <div><span className="text-slate-400 font-sans">MSBTE:</span> {t.msbteCode}</div>}
+                          {t.pciCode && <div><span className="text-slate-400 font-sans">PCI:</span> {t.pciCode}</div>}
+                        </div>
+                      </td>
                       <td className="py-3 px-4 text-slate-600">{t.coordinatorEmail || 'N/A'}</td>
                       <td className="py-3 px-4">
                         <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-300 px-2.5 py-1 rounded-lg">
@@ -232,7 +250,7 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
                           <button
                             onClick={() => copyToClipboard(t.licenseKey)}
                             title="Copy License Key"
-                            className="text-slate-400 hover:text-blue-700 transition-colors"
+                            className="text-slate-400 hover:text-blue-700 transition-colors cursor-pointer"
                           >
                             <Copy className="w-3.5 h-3.5" />
                           </button>
@@ -257,10 +275,10 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
 
       </main>
 
-      {/* Provisioning Modal Popup */}
+      {/* Provisioning Modal with 4 Statutory Codes */}
       {showProvisionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl max-w-md w-full space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl max-w-lg w-full space-y-4 my-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2 text-blue-900 font-bold">
                 <Building2 className="w-5 h-5 text-blue-700" />
@@ -268,34 +286,85 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
               </div>
               <button
                 onClick={() => setShowProvisionModal(false)}
-                className="text-slate-400 hover:text-slate-700 text-sm font-bold"
+                className="text-slate-400 hover:text-slate-700 text-sm font-bold cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleProvision} className="space-y-3.5 text-xs">
+            <form onSubmit={handleProvision} className="space-y-3 text-xs">
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Institution Legal Name *</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Samarth Institute of Pharmacy"
+                  placeholder="e.g. D. P. Kharde Navjeevan College of Pharmacy, Sinnar"
                   value={instName}
                   onChange={(e) => setInstName(e.target.value)}
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
                 />
               </div>
 
+              {/* 4 Statutory Codes Grid */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Code (DTE/MSBTE/PCI) *</label>
+                  <label className="block font-bold text-slate-700 mb-1">AISHE Code *</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. 5225"
-                    value={instCode}
-                    onChange={(e) => setInstCode(e.target.value)}
+                    placeholder="e.g. S-22693"
+                    value={aisheCode}
+                    onChange={(e) => setAisheCode(e.target.value)}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none font-mono text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">DTE Code *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 5539"
+                    value={dteCode}
+                    onChange={(e) => setDteCode(e.target.value)}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none font-mono text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">MSBTE Code *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 62386"
+                    value={msbteCode}
+                    onChange={(e) => setMsbteCode(e.target.value)}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none font-mono text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">PCI Code *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 9178"
+                    value={pciCode}
+                    onChange={(e) => setPciCode(e.target.value)}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none font-mono text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Coordinator Email & Seats */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="col-span-2">
+                  <label className="block font-bold text-slate-700 mb-1">Official Coordinator Email</label>
+                  <input
+                    type="email"
+                    placeholder="62386principal@msbte.ac.in"
+                    value={instEmail}
+                    onChange={(e) => setInstEmail(e.target.value)}
                     className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
                   />
                 </div>
@@ -311,28 +380,17 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
                 </div>
               </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Official Coordinator Email</label>
-                <input
-                  type="email"
-                  placeholder="principal@institution.edu.in"
-                  value={instEmail}
-                  onChange={(e) => setInstEmail(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
-                />
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2">
+              <div className="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowProvisionModal(false)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl shadow-md"
+                  className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl shadow-md cursor-pointer"
                 >
                   Generate Key &amp; Provision
                 </button>
