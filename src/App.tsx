@@ -52,9 +52,7 @@ export default function App() {
   // Super Admin Control Plane State
   const [isSuperAdminViewOpen, setIsSuperAdminViewOpen] = useState(false);
   const [isSuperAdminLoginModalOpen, setIsSuperAdminLoginModalOpen] = useState(false);
-  const [isSuperAdminUser, setIsSuperAdminUser] = useState<boolean>(() => {
-    return localStorage.getItem('faculty_genie_superadmin_auth') === 'true';
-  });
+  const [isSuperAdminUser, setIsSuperAdminUser] = useState<boolean>(false);
 
   // Core Institutional State
   const [loading, setLoading] = useState(true);
@@ -170,60 +168,46 @@ export default function App() {
     }, 100);
   };
 
-  // Exit Workspace / Switch Institutional License Key
+  // Clean Exit / Logout of Workspace
   const handleExitWorkspace = () => {
-    if (window.confirm('Do you want to exit this college workspace and switch license key?')) {
-      localStorage.removeItem('faculty_genie_tenant_id');
-      localStorage.removeItem('faculty_genie_license_key');
-      setTenantId(null);
-      setLicenseKey(null);
-      setLicense(null);
-      setInstitution(null);
-      setSubject(null);
-      setFacultyList([]);
-      setStudents([]);
-      setTimetable([]);
-      setAssessment(null);
-      setStudentMarks([]);
-      setCoAttainment([]);
-      setPoAttainments({});
-      setActionTakenReports([]);
-      setTeachingDiaryEntries([]);
-      setAuditLogs([]);
-      setCurrentTab('HOME');
-    }
+    localStorage.removeItem('faculty_genie_tenant_id');
+    localStorage.removeItem('faculty_genie_license_key');
+    localStorage.removeItem('faculty_genie_superadmin_auth');
+    setTenantId(null);
+    setLicenseKey(null);
+    setLicense(null);
+    setInstitution(null);
+    setSubject(null);
+    setFacultyList([]);
+    setStudents([]);
+    setTimetable([]);
+    setAssessment(null);
+    setStudentMarks([]);
+    setCoAttainment([]);
+    setPoAttainments({});
+    setActionTakenReports([]);
+    setTeachingDiaryEntries([]);
+    setAuditLogs([]);
+    setIsSuperAdminUser(false);
+    setIsSuperAdminViewOpen(false);
+    setCurrentTab('HOME');
   };
 
-  // Super Admin Action Handlers (Keeps you logged in seamlessly)
+  // Super Admin Action Handlers
   const handleOpenSuperAdmin = () => {
-    if (isSuperAdminUser || localStorage.getItem('faculty_genie_superadmin_auth') === 'true') {
-      setIsSuperAdminUser(true);
-      setIsSuperAdminViewOpen(true);
-    } else {
-      setIsSuperAdminLoginModalOpen(true);
-    }
+    setIsSuperAdminLoginModalOpen(true);
   };
 
   const handleSuperAdminLoginSuccess = () => {
     setIsSuperAdminUser(true);
-    localStorage.setItem('faculty_genie_superadmin_auth', 'true');
     setIsSuperAdminLoginModalOpen(false);
     setIsSuperAdminViewOpen(true);
   };
 
+  // When clicking "Exit Gateway" inside SuperAdminDashboard
   const handleExitSuperAdmin = () => {
     setIsSuperAdminViewOpen(false);
-  };
-
-  const handleSuperAdminEnterTenant = (targetTenantId: string, targetLicense: InstitutionalLicense) => {
-    localStorage.setItem('faculty_genie_tenant_id', targetTenantId);
-    localStorage.setItem('faculty_genie_license_key', targetLicense.key);
-    setTenantId(targetTenantId);
-    setLicenseKey(targetLicense.key);
-    setLicense(targetLicense);
-    setIsSuperAdminViewOpen(false);
-    setLoading(true);
-    fetchBootstrapData();
+    handleExitWorkspace();
   };
 
   // Institution Profile Save Handler
@@ -310,7 +294,7 @@ export default function App() {
     }
   };
 
-  // Assessment question marks commit & instant OBE recalculation handler
+  // Assessment marks commit & recalculation handler
   const handleSaveMarks = async (marks: StudentQuestionMark[], thresholdRatio?: number) => {
     const res = await fetchTenant('/api/marks/save', {
       method: 'POST',
@@ -466,7 +450,7 @@ export default function App() {
     currentFaculty.employmentType === 'ADJUNCT_VISITING' ||
     currentFaculty.employmentType === 'GUEST_LECTURER';
 
-  // 4. Initial Institution Setup Screen (After activation, when database is completely blank)
+  // 4. Initial Institution Setup Screen
   if (!institution || !institution.name) {
     return (
       <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
@@ -515,7 +499,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
-      {/* Top Universal Navbar */}
       <Navbar
         institution={institution}
         license={license}
@@ -532,7 +515,6 @@ export default function App() {
         isSuperAdminUser={isSuperAdminUser}
       />
 
-      {/* Main Workspace Layout (Sidebar + View Canvas) */}
       <div className="flex-1 max-w-7xl w-full mx-auto flex flex-col lg:flex-row">
         <Sidebar
           currentTab={currentTab}
@@ -616,7 +598,7 @@ export default function App() {
             />
           )}
 
-          {/* RBAC Gatekeeper for Adjunct / Visiting Faculty on Institutional Dossier & Master Setup Tabs */}
+          {/* RBAC Gatekeeper */}
           {isAdjunctFaculty && (currentTab === 'OUTCOMES' || currentTab === 'DOCUMENTS' || currentTab === 'SETUP') ? (
             <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-200 shadow-sm max-w-2xl mx-auto my-8 text-center space-y-4">
               <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center mx-auto shadow-inner">
