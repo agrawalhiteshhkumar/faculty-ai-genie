@@ -55,7 +55,7 @@ export default function App() {
   const [isSuperAdminLoginModalOpen, setIsSuperAdminLoginModalOpen] = useState(false);
   const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
 
-  // Core Institutional State - Loaded directly from persistent local storage
+  // Core Institutional State
   const [loading, setLoading] = useState(false);
   const [institution, setInstitution] = useState<InstitutionProfile | null>(() => {
     const saved = localStorage.getItem('faculty_genie_institution');
@@ -142,7 +142,7 @@ export default function App() {
         if (data.actionTakenReports?.length) setActionTakenReports(data.actionTakenReports);
       }
     } catch {
-      // Static build fallback keeps local state intact
+      // Offline / client-first resilience
     }
   }, [tenantId, licenseKey]);
 
@@ -363,7 +363,10 @@ export default function App() {
         <ExecutiveHeader
           userRole={activeRole === 'ADMIN' ? 'ADMIN' : 'FACULTY'}
           onRoleSwitch={handleRoleSwitch}
+          onOpenSuperAdmin={handleOpenSuperAdmin}
           teachingHours={currentFaculty?.prescribedWeeklyHours || 16}
+          currentFacultyName={currentFaculty?.name}
+          isSuperAdminUser={isSuperAdminUser}
         />
         <Navbar
           institution={institution}
@@ -414,7 +417,10 @@ export default function App() {
       <ExecutiveHeader
         userRole={activeRole === 'ADMIN' ? 'ADMIN' : 'FACULTY'}
         onRoleSwitch={handleRoleSwitch}
+        onOpenSuperAdmin={handleOpenSuperAdmin}
         teachingHours={currentFaculty?.prescribedWeeklyHours || 16}
+        currentFacultyName={currentFaculty?.name}
+        isSuperAdminUser={isSuperAdminUser}
       />
       <Navbar
         institution={institution}
