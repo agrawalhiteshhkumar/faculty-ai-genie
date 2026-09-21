@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileCheck2,
   Download,
@@ -23,6 +23,7 @@ import {
   DPK_COLLEGE_IDENTITY,
 } from '../../data/msbteProformasData';
 import { ConsolidatedCourseFileModal } from '../ConsolidatedCourseFileModal';
+import { getAsset } from '../../utils/assetStorage';
 import {
   exportAllMSBTEProformasExcelBundle,
   exportPH1TeachingPlanExcel,
@@ -61,6 +62,19 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
   const [copiedNotification, setCopiedNotification] = useState<string | null>(null);
   const [isExportingAllBundle, setIsExportingAllBundle] = useState(false);
   const [isConsolidatedModalOpen, setIsConsolidatedModalOpen] = useState(false);
+  const [persistedLogo, setPersistedLogo] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadInstitutionalLogo() {
+      try {
+        const logo = await getAsset('college_logo');
+        if (logo) setPersistedLogo(logo);
+      } catch (err) {
+        console.error('Failed to load logo from assetStorage:', err);
+      }
+    }
+    loadInstitutionalLogo();
+  }, []);
 
   // Communication Copilot State
   const [commTopic, setCommTopic] = useState('Remedial Formulation & Hands-On Coaching Clinic');
@@ -231,34 +245,44 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
           </div>
         ) : (
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
-          {/* Official Institutional Dossier Header with 4 Statutory Codes */}
+          {/* Official Institutional Dossier Header with Logo & 4 Statutory Codes */}
           <div className="p-5 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-xl border border-slate-800 shadow-sm print:border print:border-slate-400 print:text-black print:bg-white">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-700/60 pb-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500 text-slate-950">
-                    Official Course Dossier
-                  </span>
-                  <span className="text-[11px] text-slate-300 font-medium">
-                    {institution?.currentAcademicYear || '2025-2026'} • {institution?.currentTerm || 'Odd Semester / Year 1'}
-                  </span>
+              <div className="flex items-center gap-4">
+                {persistedLogo && (
+                  <div className="w-14 h-14 bg-white/10 rounded-lg p-1 border border-slate-700 flex items-center justify-center shrink-0 print:border-slate-400">
+                    <img src={persistedLogo} alt="Institution Seal" className="w-full h-full object-contain" />
+                  </div>
+                )}
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500 text-slate-950">
+                      Official Course Dossier
+                    </span>
+                    <span className="text-[11px] text-slate-300 font-medium print:text-slate-700">
+                      {institution?.academicYear || '2026-2027'} • {institution?.currentTerm || 'Odd Semester / Year 1'}
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-semibold text-amber-300 uppercase tracking-wide">
+                    Navjeevan Education Society's
+                  </div>
+                  <h1 className="text-lg md:text-xl font-black tracking-tight text-white print:text-black">
+                    {institution?.name || 'D. P. Kharde Navjeevan College of Pharmacy, Sinnar'}
+                  </h1>
+                  <p className="text-xs text-slate-300 print:text-slate-700 mt-0.5 font-medium">
+                    {institution?.departmentName || 'Diploma in Pharmacy'} • {institution?.affiliatedBoard || 'MSBTE Mumbai / PCI New Delhi'}
+                  </p>
                 </div>
-                <h1 className="text-lg md:text-xl font-black tracking-tight text-white print:text-black">
-                  {institution?.name || 'Metropolitan Institute of Pharmacy & Technology'}
-                </h1>
-                <p className="text-xs text-slate-300 print:text-slate-700 mt-0.5 font-medium">
-                  {institution?.departmentName || 'Department of Pharmacy'} • {institution?.affiliatedBoard || 'MSBTE Mumbai / PCI New Delhi'}
-                </p>
               </div>
 
               <div className="text-right">
-                <div className="text-xs text-slate-300 font-semibold uppercase tracking-wider">
+                <div className="text-xs text-slate-300 font-semibold uppercase tracking-wider print:text-slate-600">
                   Course File Identifier
                 </div>
-                <div className="text-base font-black text-amber-400 font-mono">
+                <div className="text-base font-black text-amber-400 font-mono print:text-slate-900">
                   {subject.code}
                 </div>
-                <div className="text-xs text-slate-300 font-medium">
+                <div className="text-xs text-slate-300 font-medium print:text-slate-700">
                   {subject.title}
                 </div>
               </div>
@@ -266,21 +290,21 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
 
             {/* Statutory Identifiers Bar */}
             <div className="pt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 print:text-slate-800">
                 Statutory Accreditation Codes:
               </span>
               <div className="flex flex-wrap gap-2 font-mono text-[11px]">
-                <span className="bg-slate-950/80 px-2 py-1 rounded border border-slate-700 text-slate-200">
-                  AISHE: <strong>{institution?.aisheCode || 'C-45892'}</strong>
+                <span className="bg-slate-950/80 px-2 py-1 rounded border border-slate-700 text-slate-200 print:bg-slate-100 print:text-black print:border-slate-300">
+                  AISHE: <strong>{institution?.aisheCode || 'S-22693'}</strong>
                 </span>
-                <span className="bg-slate-950/80 px-2 py-1 rounded border border-slate-700 text-amber-300">
-                  PCI: <strong>{institution?.pciCode || 'PCI-1823'}</strong>
+                <span className="bg-slate-950/80 px-2 py-1 rounded border border-slate-700 text-amber-300 print:bg-slate-100 print:text-black print:border-slate-300">
+                  PCI: <strong>{institution?.pciCode || '9178'}</strong>
                 </span>
-                <span className="bg-slate-950/80 px-2 py-1 rounded border border-slate-700 text-indigo-300">
-                  DTE: <strong>{institution?.dteCode || '5219'}</strong>
+                <span className="bg-slate-950/80 px-2 py-1 rounded border border-slate-700 text-indigo-300 print:bg-slate-100 print:text-black print:border-slate-300">
+                  DTE: <strong>{institution?.dteCode || '5539'}</strong>
                 </span>
-                <span className="bg-slate-950/80 px-2 py-1 rounded border border-slate-700 text-emerald-300">
-                  MSBTE: <strong>{institution?.msbteCode || '0182'}</strong>
+                <span className="bg-slate-950/80 px-2 py-1 rounded border border-slate-700 text-emerald-300 print:bg-slate-100 print:text-black print:border-slate-300">
+                  MSBTE: <strong>{institution?.msbteCode || '62386'}</strong>
                 </span>
               </div>
             </div>
@@ -309,14 +333,14 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
               </button>
               <button
                 onClick={() => window.print()}
-                className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5"
+                className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
               >
                 <Printer className="w-3.5 h-3.5" />
                 Print / Save PDF
               </button>
               <button
                 onClick={() => copyToClipboard('Full Course Dossier Content', 'Course File Dossier')}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-1.5"
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5 text-amber-400" />
                 Export Indexed ZIP
@@ -348,14 +372,14 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                 <button
                   onClick={handleDownloadAllBundle}
                   disabled={isExportingAllBundle}
-                  className="px-3.5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 disabled:opacity-75"
+                  className="px-3.5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 disabled:opacity-75 cursor-pointer"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5" />
                   {isExportingAllBundle ? 'Generating...' : 'Download All 11 Bundle (.csv)'}
                 </button>
                 <button
                   onClick={() => setActiveSubTab('MSBTE_PROFORMAS')}
-                  className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5"
+                  className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
                 >
                   Open Interactive Viewer →
                 </button>
@@ -386,7 +410,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     <button
                       onClick={() => handleExportSingleProforma(proforma.id)}
-                      className="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 hover:text-amber-300 rounded-lg border border-slate-700 transition"
+                      className="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 hover:text-amber-300 rounded-lg border border-slate-700 transition cursor-pointer"
                       title={`Export ${proforma.code} to Excel (.csv)`}
                     >
                       <Download className="w-3.5 h-3.5" />
@@ -395,7 +419,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                       onClick={() => {
                         setActiveSubTab('MSBTE_PROFORMAS');
                       }}
-                      className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg border border-slate-700 transition"
+                      className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg border border-slate-700 transition cursor-pointer"
                       title={`View / Print ${proforma.code} PDF`}
                     >
                       <Printer className="w-3.5 h-3.5" />
@@ -420,7 +444,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                 <div>
                   <div className="text-xs font-bold text-slate-900">Course Identity & Regulatory Syllabus Copy</div>
                   <p className="text-[11px] text-slate-500 mt-0.5">
-                    PCI ER-2020 Gazette Notification & MSBTE K-Scheme Curriculum Guidelines.
+                    PCI ER-2020 Gazette Notification & MSBTE K/J-Scheme Curriculum Guidelines.
                   </p>
                   <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded mt-1.5 inline-block">
                     ✓ Verified & Attached
@@ -534,6 +558,30 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Statutory Signatory Endorsement Box */}
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <div>
+              <div className="font-bold text-slate-900">Statutory Signatory Endorsement</div>
+              <p className="text-[11px] text-slate-500">
+                Authorized under MSBTE CIAAN-2023 & PCI Pharmacy Education Regulations (ER-2020)
+              </p>
+            </div>
+            <div className="flex items-center gap-6 text-right">
+              <div>
+                <div className="font-mono text-[10px] text-slate-400 uppercase">Head of Department</div>
+                <div className="font-bold text-slate-800">Academic In-Charge</div>
+              </div>
+              <div className="border-l border-slate-300 pl-6">
+                <div className="font-mono text-[10px] text-slate-400 uppercase">Principal & Authorizing Authority</div>
+                <div className="font-bold text-indigo-900">Dr. Hiteshkumar Agrawal</div>
+                <div className="text-[10px] text-slate-500">
+                  Navjeevan Education Society's D. P. Kharde Navjeevan College of Pharmacy, Sinnar
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       ))}
 
@@ -561,7 +609,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
             </div>
             <button
               onClick={() => copyToClipboard('NBA SAR Criterion 3 Table Data', 'NBA SAR Pack')}
-              className="w-full py-2 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition flex items-center justify-center gap-1.5"
+              className="w-full py-2 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5 text-amber-400" />
               Download SAR Tables (Excel)
@@ -580,7 +628,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
             </div>
             <button
               onClick={() => copyToClipboard('MSBTE Formats A & B Data', 'MSBTE Monitoring Pack')}
-              className="w-full py-2 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition flex items-center justify-center gap-1.5"
+              className="w-full py-2 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5 text-amber-400" />
               Download MSBTE Formats
@@ -599,7 +647,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
             </div>
             <button
               onClick={() => copyToClipboard('PCI SIF Data Tables', 'PCI SIF Pack')}
-              className="w-full py-2 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition flex items-center justify-center gap-1.5"
+              className="w-full py-2 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5 text-amber-400" />
               Download SIF Annexures
@@ -625,7 +673,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
               id="generate-communication-btn"
               onClick={handleGenerateComm}
               disabled={isGeneratingComm}
-              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 self-start sm:self-auto"
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               {isGeneratingComm ? 'Generating Multi-Channel Pack...' : '1-Click Dispatch Multi-Channel'}
@@ -668,7 +716,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                     <span>1. Official Letterhead Circular</span>
                     <button
                       onClick={() => copyToClipboard(commResult.letterheadCircular, 'Circular')}
-                      className="text-slate-500 hover:text-slate-900"
+                      className="text-slate-500 hover:text-slate-900 cursor-pointer"
                     >
                       <Copy className="w-3.5 h-3.5" />
                     </button>
@@ -684,7 +732,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                     <span>2. Parent WhatsApp / SMS Alert</span>
                     <button
                       onClick={() => copyToClipboard(commResult.parentWhatsappSms, 'WhatsApp Message')}
-                      className="text-slate-500 hover:text-slate-900"
+                      className="text-slate-500 hover:text-slate-900 cursor-pointer"
                     >
                       <Copy className="w-3.5 h-3.5" />
                     </button>
