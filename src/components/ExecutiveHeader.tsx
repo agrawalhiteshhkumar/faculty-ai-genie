@@ -43,7 +43,7 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
     <header className="w-full bg-slate-900 border-b border-slate-800 text-white px-4 sm:px-6 py-4 shadow-md">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         
-        {/* Left: Logo & College Identity */}
+        {/* Left: Logo & Institutional Legal Identity */}
         <div className="flex items-center gap-4 w-full md:w-auto">
           <div className="relative group w-16 h-16 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
             {logoSrc ? (
@@ -58,29 +58,42 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
           </div>
 
           <div>
+            <div className="text-[11px] font-semibold text-amber-400 tracking-wide uppercase">
+              Navjeevan Education Society's
+            </div>
             <h1 className="text-base sm:text-lg font-bold tracking-tight text-white leading-snug">
-              D. P. Kharde Navjeevan College of Pharmacy
+              D. P. Kharde Navjeevan College of Pharmacy, Sinnar
             </h1>
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 mt-1">
-              <span className="bg-slate-800 px-2 py-0.5 rounded border border-slate-700">MSBTE Code: 1144</span>
-              <span className="bg-slate-800 px-2 py-0.5 rounded border border-slate-700">PCI: ER-2020</span>
-              <span className="bg-emerald-950/80 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded font-medium">
-                QCI Benchmark: Grade A
+              <span className="bg-slate-800 px-2 py-0.5 rounded border border-slate-700 font-mono text-[11px]">
+                MSBTE: 62386
+              </span>
+              <span className="bg-slate-800 px-2 py-0.5 rounded border border-slate-700 font-mono text-[11px]">
+                DTE: 5539
+              </span>
+              <span className="bg-slate-800 px-2 py-0.5 rounded border border-slate-700 font-mono text-[11px]">
+                PCI: 9178
+              </span>
+              <span className="bg-slate-800 px-2 py-0.5 rounded border border-slate-700 font-mono text-[11px]">
+                AISHE: S-22693
+              </span>
+              <span className="bg-emerald-950/80 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded font-medium text-[11px]">
+                PCI ER-2020 • J-Scheme
               </span>
             </div>
           </div>
         </div>
 
-        {/* Center: Executive Signatory & Contact Credential Card */}
+        {/* Center: Executive Signatory & Direct Leadership Credentials */}
         <div className="w-full md:w-auto bg-slate-950/70 border border-slate-800 rounded-lg p-3 text-xs flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="space-y-0.5">
             <div className="font-bold text-slate-100 text-sm flex items-center gap-2">
               Dr. Hiteshkumar Agrawal
               <span className="text-[10px] font-normal bg-indigo-900/60 text-indigo-300 border border-indigo-700 px-1.5 py-0.5 rounded">
-                Authorizing Signatory
+                Principal & Authorizing Signatory
               </span>
             </div>
-            <p className="text-slate-300">Principal & Founder, Faculty AI Genie™</p>
+            <p className="text-slate-300">Principal, Professor & Founder, Faculty AI Genie™</p>
             <div className="flex items-center gap-3 text-slate-400 text-[11px] pt-1">
               <a href="mailto:hiteshhkumar.agrawal@gmail.com" className="hover:text-indigo-400 transition underline underline-offset-2">
                 ✉ hiteshhkumar.agrawal@gmail.com
