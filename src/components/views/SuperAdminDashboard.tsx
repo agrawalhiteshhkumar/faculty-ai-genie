@@ -8,15 +8,19 @@ import {
   Users, 
   GraduationCap, 
   CheckCircle2, 
-  RotateCcw,
-  ShieldCheck,
-  Copy,
-  FileCheck
+  RotateCcw, 
+  ShieldCheck, 
+  Copy, 
+  Calendar,
+  Sparkles,
+  Award
 } from 'lucide-react';
 
 interface SuperAdminDashboardProps {
   onExit: () => void;
 }
+
+export type LicenseTierType = 'TRIAL' | 'ANNUAL' | 'ENTERPRISE';
 
 interface Tenant {
   id: string;
@@ -27,7 +31,9 @@ interface Tenant {
   pciCode: string;
   coordinatorEmail: string;
   licenseKey: string;
+  tier: LicenseTierType;
   facultySeats: number;
+  validUntil: string;
   status: 'Active' | 'Pending';
   createdAt: string;
 }
@@ -45,17 +51,34 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
   const [msbteCode, setMsbteCode] = useState('');
   const [pciCode, setPciCode] = useState('');
   const [instEmail, setInstEmail] = useState('');
+  const [selectedTier, setSelectedTier] = useState<LicenseTierType>('ANNUAL');
   const [seats, setSeats] = useState(25);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const handleTierChange = (tier: LicenseTierType) => {
+    setSelectedTier(tier);
+    if (tier === 'TRIAL') setSeats(10);
+    else if (tier === 'ANNUAL') setSeats(25);
+    else if (tier === 'ENTERPRISE') setSeats(60);
+  };
 
   const handleProvision = (e: React.FormEvent) => {
     e.preventDefault();
     if (!instName.trim()) return;
 
-    // Use DTE or MSBTE code for the license key prefix
     const keySeed = (dteCode.trim() || msbteCode.trim() || 'INST').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
     const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-    const newKey = `GENIE-INST-${keySeed}-${randomSuffix}`;
+    const tierPrefix = selectedTier === 'TRIAL' ? 'TRIAL' : selectedTier === 'ENTERPRISE' ? 'ENT' : 'ANNUAL';
+    const newKey = `GENIE-${tierPrefix}-${keySeed}-${randomSuffix}`;
+
+    const expDate = new Date();
+    if (selectedTier === 'TRIAL') {
+      expDate.setDate(expDate.getDate() + 30);
+    } else if (selectedTier === 'ANNUAL') {
+      expDate.setFullYear(expDate.getFullYear() + 1);
+    } else {
+      expDate.setFullYear(expDate.getFullYear() + 3);
+    }
 
     const newTenant: Tenant = {
       id: Date.now().toString(),
@@ -66,7 +89,9 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
       pciCode: pciCode.trim().toUpperCase(),
       coordinatorEmail: instEmail.trim(),
       licenseKey: newKey,
+      tier: selectedTier,
       facultySeats: Number(seats) || 25,
+      validUntil: expDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
       status: 'Active',
       createdAt: new Date().toLocaleDateString('en-IN')
     };
@@ -115,7 +140,7 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
                     SUPERADMIN PORTAL
                   </span>
                 </div>
-                <p className="text-xs text-slate-500">Statutory Multi-Tenant Orchestrator (AISHE • DTE • MSBTE • PCI)</p>
+                <p className="text-xs text-slate-500">Statutory Multi-Tenant Provisioning (AISHE • DTE • MSBTE • PCI)</p>
               </div>
             </div>
           </div>
@@ -159,7 +184,7 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             </div>
             <p className="text-2xl font-extrabold text-slate-900 mt-2">{tenants.length}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">Operating under Isolated RLS</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">Isolated Multi-Tenant RLS</p>
           </div>
 
           <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
@@ -225,7 +250,7 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
                   <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
                     <th className="py-3 px-4">College / Institute Name</th>
                     <th className="py-3 px-4">Statutory Codes</th>
-                    <th className="py-3 px-4">Official Email</th>
+                    <th className="py-3 px-4">Tier &amp; Validity</th>
                     <th className="py-3 px-4">Institutional License Key</th>
                     <th className="py-3 px-4">Seats</th>
                     <th className="py-3 px-4">Status</th>
@@ -234,7 +259,10 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
                 <tbody className="divide-y divide-slate-200 font-medium">
                   {tenants.map((t) => (
                     <tr key={t.id} className="hover:bg-blue-50/50 transition-colors">
-                      <td className="py-3 px-4 font-bold text-slate-900">{t.name}</td>
+                      <td className="py-3 px-4 font-bold text-slate-900">
+                        <div>{t.name}</div>
+                        <div className="text-[11px] text-slate-400 font-normal">{t.coordinatorEmail || 'N/A'}</div>
+                      </td>
                       <td className="py-3 px-4 text-slate-600 font-mono text-[11px]">
                         <div className="space-y-0.5">
                           {t.aisheCode && <div><span className="text-slate-400 font-sans">AISHE:</span> {t.aisheCode}</div>}
@@ -243,7 +271,21 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
                           {t.pciCode && <div><span className="text-slate-400 font-sans">PCI:</span> {t.pciCode}</div>}
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-slate-600">{t.coordinatorEmail || 'N/A'}</td>
+                      <td className="py-3 px-4">
+                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                          t.tier === 'ENTERPRISE'
+                            ? 'bg-purple-50 text-purple-700 border-purple-200'
+                            : t.tier === 'ANNUAL'
+                            ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}>
+                          {t.tier || 'ANNUAL'}
+                        </span>
+                        <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-slate-400" />
+                          <span>{t.validUntil || '1 Year'}</span>
+                        </div>
+                      </td>
                       <td className="py-3 px-4">
                         <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-300 px-2.5 py-1 rounded-lg">
                           <code className="font-mono text-blue-900 font-bold">{t.licenseKey}</code>
@@ -259,7 +301,7 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
                           )}
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-slate-700">{t.facultySeats}</td>
+                      <td className="py-3 px-4 text-slate-700 font-bold">{t.facultySeats}</td>
                       <td className="py-3 px-4">
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                           {t.status}
@@ -275,7 +317,7 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
 
       </main>
 
-      {/* Provisioning Modal with 4 Statutory Codes */}
+      {/* Provisioning Modal with Interactive Tier Selector */}
       {showProvisionModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl max-w-lg w-full space-y-4 my-auto">
@@ -292,7 +334,7 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
               </button>
             </div>
 
-            <form onSubmit={handleProvision} className="space-y-3 text-xs">
+            <form onSubmit={handleProvision} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Institution Legal Name *</label>
                 <input
@@ -303,6 +345,60 @@ export function SuperAdminDashboard({ onExit }: SuperAdminDashboardProps) {
                   onChange={(e) => setInstName(e.target.value)}
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
                 />
+              </div>
+
+              {/* License Tier Selection Cards */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">Select Accreditation &amp; License Tier *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleTierChange('TRIAL')}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      selectedTier === 'TRIAL'
+                        ? 'border-amber-500 bg-amber-50/50 ring-1 ring-amber-500'
+                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100/70'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-[11px] text-slate-900">Demo Trial</span>
+                      <Calendar className="w-3.5 h-3.5 text-amber-600" />
+                    </div>
+                    <p className="text-[10px] text-slate-500">30-Day Evaluation (10 Seats)</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleTierChange('ANNUAL')}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      selectedTier === 'ANNUAL'
+                        ? 'border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-600'
+                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100/70'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-[11px] text-slate-900">Standard</span>
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                    </div>
+                    <p className="text-[10px] text-slate-500">1-Year Academic (25 Seats)</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleTierChange('ENTERPRISE')}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      selectedTier === 'ENTERPRISE'
+                        ? 'border-purple-600 bg-purple-50/50 ring-1 ring-purple-600'
+                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100/70'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-[11px] text-slate-900">Enterprise</span>
+                      <Award className="w-3.5 h-3.5 text-purple-600" />
+                    </div>
+                    <p className="text-[10px] text-slate-500">3-Year Multi-Accreditation</p>
+                  </button>
+                </div>
               </div>
 
               {/* 4 Statutory Codes Grid */}
