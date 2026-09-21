@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Lock, ShieldAlert, ArrowRight } from 'lucide-react';
 import { Navbar } from './components/Navbar';
+import { ExecutiveHeader } from './components/ExecutiveHeader';
 import { Sidebar, NavTab } from './components/Sidebar';
 import { HomeView } from './components/views/HomeView';
 import { MyWorkView } from './components/views/MyWorkView';
@@ -92,9 +93,17 @@ export default function App() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isSuccessTestModalOpen, setIsSuccessTestModalOpen] = useState(false);
 
+  // Persona Sync Handler between ExecutiveHeader & App UserRole
+  const handleRoleSwitch = (persona: 'ADMIN' | 'FACULTY') => {
+    if (persona === 'ADMIN') {
+      setActiveRole('ADMIN');
+    } else {
+      setActiveRole('FACULTY');
+    }
+  };
+
   // Bootstrap Loader with Client-First Resilience
   const fetchBootstrapData = useCallback(async () => {
-    // Check localStorage cache first
     const localInst = localStorage.getItem('faculty_genie_institution');
     if (localInst) {
       setInstitution(JSON.parse(localInst));
@@ -132,7 +141,7 @@ export default function App() {
         if (data.actionTakenReports?.length) setActionTakenReports(data.actionTakenReports);
       }
     } catch {
-      // Backend not running on static Vercel build; local state remains intact
+      // Static build fallback keeps local state intact
     }
   }, [tenantId, licenseKey]);
 
@@ -192,7 +201,7 @@ export default function App() {
   const handleSaveInstitution = async (profile: InstitutionProfile) => {
     localStorage.setItem('faculty_genie_institution', JSON.stringify(profile));
     setInstitution(profile);
-    setCurrentTab('HOME'); // Immediately switches into the operational dashboard
+    setCurrentTab('HOME');
   };
 
   // Reset to Blank
@@ -288,7 +297,7 @@ export default function App() {
     setFacultyList(sampleFaculty);
     setStudents(sampleStudents);
     setSubject(sampleSubject);
-    setCurrentTab('HOME'); // Directly takes you to the full live system
+    setCurrentTab('HOME');
   };
 
   // Attendance, Diary & Assessment Handlers
@@ -310,12 +319,12 @@ export default function App() {
   // VIEW ROUTING
   // ---------------------------------------------------------------------------
 
-  // 1. Super Admin View (Always Top Priority)
+  // 1. Super Admin View
   if (isSuperAdminViewOpen) {
     return <SuperAdminDashboard onExit={handleExitSuperAdmin} />;
   }
 
-  // 2. Activation Gateway (When not activated)
+  // 2. Activation Gateway
   if (!tenantId || !licenseKey) {
     return (
       <>
@@ -346,10 +355,15 @@ export default function App() {
       assignedSubjects: [],
     };
 
-  // 3. Institution Setup Screen (Only shown if setup tab is explicitly active or no profile exists)
+  // 3. Institution Setup Screen
   if (!institution || !institution.name || currentTab === 'SETUP') {
     return (
       <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans">
+        <ExecutiveHeader
+          userRole={activeRole === 'ADMIN' ? 'ADMIN' : 'FACULTY'}
+          onRoleSwitch={handleRoleSwitch}
+          teachingHours={currentFaculty?.prescribedWeeklyHours || 16}
+        />
         <Navbar
           institution={institution}
           license={license}
@@ -395,6 +409,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans">
+      <ExecutiveHeader
+        userRole={activeRole === 'ADMIN' ? 'ADMIN' : 'FACULTY'}
+        onRoleSwitch={handleRoleSwitch}
+        teachingHours={currentFaculty?.prescribedWeeklyHours || 16}
+      />
       <Navbar
         institution={institution}
         license={license}
