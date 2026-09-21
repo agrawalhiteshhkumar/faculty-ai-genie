@@ -39,6 +39,7 @@ import {
 export default function App() {
   const [activeRole, setActiveRole] = useState<UserRole>('FACULTY');
   const [currentTab, setCurrentTab] = useState<NavTab>('HOME');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Multi-Tenant Session State
   const [tenantId, setTenantId] = useState<string | null>(() => {
@@ -378,6 +379,7 @@ export default function App() {
           onOpenSuperAdmin={handleOpenSuperAdmin}
           onExitWorkspace={handleExitWorkspace}
           isSuperAdminUser={isSuperAdminUser}
+          onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
         />
         <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
           <InstitutionSetupView
@@ -428,6 +430,7 @@ export default function App() {
         onOpenSuperAdmin={handleOpenSuperAdmin}
         onExitWorkspace={handleExitWorkspace}
         isSuperAdminUser={isSuperAdminUser}
+        onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
       />
 
       <div className="flex-1 max-w-7xl w-full mx-auto flex flex-col lg:flex-row">
@@ -441,6 +444,8 @@ export default function App() {
           onOpenSuperAdmin={handleOpenSuperAdmin}
           license={license}
           currentFaculty={currentFaculty}
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-x-hidden">
