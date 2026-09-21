@@ -2,390 +2,222 @@
 
 import React, { useState } from 'react';
 import { 
-  ShieldCheck, 
-  KeyRound, 
   Building2, 
-  Mail, 
+  ShieldCheck, 
   ArrowRight, 
+  Crown, 
+  UserCheck, 
+  KeyRound, 
   CheckCircle2, 
-  AlertCircle, 
-  HelpCircle, 
-  BookOpen, 
-  X, 
-  Copy, 
-  Send 
+  GraduationCap 
 } from 'lucide-react';
 
-export interface ActivationGatewayProps {
-  onActivated?: () => void;
-  onOpenSuperAdmin?: () => void;
+interface ActivationGatewayProps {
+  onActivated: (tenantId?: string, license?: any) => void;
+  onOpenSuperAdmin: () => void;
 }
 
-export function ActivationGateway({ onActivated, onOpenSuperAdmin }: ActivationGatewayProps) {
-  const [licenseKey, setLicenseKey] = useState('');
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [isValidating, setIsValidating] = useState(false);
+export function ActivationGateway({
+  onActivated,
+  onOpenSuperAdmin,
+}: ActivationGatewayProps) {
+  const [activeTab, setActiveTab] = useState<'INSTITUTE' | 'FACULTY'>('INSTITUTE');
+  const [licenseKeyInput, setLicenseKeyInput] = useState('GENIE-INST-2026-ACTIVE');
+  const [facultyPin, setFacultyPin] = useState('');
+  const [selectedFaculty, setSelectedFaculty] = useState('Dr. Hiteshkumar Agrawal (Principal)');
 
-  // Request Pilot Modal State
-  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [reqForm, setReqForm] = useState({
-    instName: '',
-    aisheCode: '',
-    dteCode: '',
-    msbteCode: '',
-    pciCode: '',
-    contactName: '',
-    email: '',
-    phone: '',
-    scheme: 'MSBTE J-Scheme / PCI ER-2020'
-  });
-
-  const handleActivationSubmit = (e: React.FormEvent) => {
+  const handleInstantLaunch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!licenseKey.trim()) {
-      setStatusMessage('Please enter an institutional license key.');
-      return;
-    }
-
-    setIsValidating(true);
-    setStatusMessage(null);
-
-    setTimeout(() => {
-      setIsValidating(false);
-      const cleanKey = licenseKey.trim().toUpperCase();
-      if (cleanKey.startsWith('GENIE-') || cleanKey.length >= 8) {
-        if (onActivated) onActivated();
-      } else {
-        setStatusMessage('Invalid license key. Please verify with your Institution Administrator.');
-      }
-    }, 700);
-  };
-
-  const emailText = 
-    `FACULTY AI GENIE — Institutional Pilot Request\n` +
-    `To: agrawal.hiteshkumar@gmail.com\n\n` +
-    `Institution Name: ${reqForm.instName || '[Institute Name]'}\n` +
-    `AISHE Code: ${reqForm.aisheCode || '[AISHE Code]'}\n` +
-    `DTE Code: ${reqForm.dteCode || '[DTE Code]'}\n` +
-    `MSBTE Code: ${reqForm.msbteCode || '[MSBTE Code]'}\n` +
-    `PCI Code: ${reqForm.pciCode || '[PCI Code]'}\n` +
-    `Curriculum Scheme: ${reqForm.scheme}\n` +
-    `Authorized Contact Person: ${reqForm.contactName || '[Name]'}\n` +
-    `Official Email: ${reqForm.email || '[Email]'}\n` +
-    `Phone: ${reqForm.phone || '[Phone]'}`;
-
-  const copyEmailDetails = () => {
-    navigator.clipboard.writeText(emailText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  };
-
-  const handleRequestSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormSubmitted(true);
+    onActivated('tenant_dpkcop', {
+      key: licenseKeyInput || 'GENIE-INST-2026-ACTIVE',
+      type: 'ENTERPRISE',
+      seats: 35,
+    });
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col justify-between p-4 sm:p-6 md:p-8 font-sans">
-      {/* Top Header */}
-      <div className="w-full max-w-xl mx-auto flex justify-between items-center text-xs">
-        <div className="flex items-center gap-1.5 font-bold text-blue-900 tracking-wide">
-          <BookOpen className="w-4 h-4 text-blue-700"/>
-          <span>FACULTY AI GENIE™</span>
-        </div>
-        {onOpenSuperAdmin && (
-          <button 
-            type="button" 
-            onClick={onOpenSuperAdmin}
-            className="text-slate-500 hover:text-blue-700 font-medium transition-colors cursor-pointer"
-          >
-            SuperAdmin Access
-          </button>
-        )}
-      </div>
-
-      {/* Main Activation Card */}
-      <div className="w-full max-w-xl mx-auto my-auto py-4">
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-xl p-5 sm:p-8 space-y-6">
-          <div className="text-center space-y-2">
-            <div className="inline-flex p-3 bg-blue-50 border border-blue-100 rounded-2xl text-blue-700 mb-1">
-              <ShieldCheck className="w-8 h-8"/>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+      {/* 1. Official Executive Institutional Banner */}
+      <header className="w-full bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-3.5 shadow-md">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 bg-blue-900 text-amber-400 rounded-xl flex items-center justify-center font-bold text-base border border-blue-700 shadow-sm shrink-0">
+              HA
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-              Institutional Workspace Activation
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-              AI-powered academic operating system for curriculum planning, attendance, MSBTE J-Scheme continuous assessment, and NBA Tier-II outcome intelligence.
+            <div>
+              <div className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+                Navjeevan Education Society's
+              </div>
+              <h1 className="text-sm sm:text-base font-black text-white">
+                D. P. Kharde Navjeevan College of Pharmacy, Sinnar
+              </h1>
+              <div className="text-[10px] text-slate-400 font-mono flex items-center gap-2">
+                <span>MSBTE: <strong>62386</strong></span>
+                <span>•</span>
+                <span>DTE: <strong>5539</strong></span>
+                <span>•</span>
+                <span>PCI: <strong>9178</strong></span>
+                <span>•</span>
+                <span>AISHE: <strong>S-22693</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onOpenSuperAdmin}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold transition cursor-pointer"
+            >
+              <Crown className="w-3.5 h-3.5 text-amber-400" />
+              <span>SuperAdmin Access</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* 2. Main Login Gateway Card */}
+      <main className="flex-1 flex items-center justify-center p-4">
+        <div className="max-w-lg w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+          
+          {/* Executive Signatory Badge */}
+          <div className="bg-slate-950 border border-slate-800/90 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+              <div>
+                <div className="text-xs font-extrabold text-white flex items-center gap-1.5">
+                  Dr. Hiteshkumar Agrawal
+                  <span className="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-1.5 py-0.2 rounded font-normal">
+                    Signatory Verified
+                  </span>
+                </div>
+                <div className="text-[11px] text-slate-400">
+                  Principal &amp; Chief Academic Architect • +91 9637521852
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center space-y-1">
+            <h2 className="text-xl font-black text-white tracking-tight">
+              Academic OS Gateway
+            </h2>
+            <p className="text-xs text-slate-400">
+              MSBTE CIAAN-2023, PCI ER-2020 &amp; NBA Tier-II Direct Assessment
             </p>
           </div>
 
-          <form onSubmit={handleActivationSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <label htmlFor="licenseKey" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                Institutional License Key
-              </label>
-              <div className="relative">
-                <KeyRound className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"/>
-                <input
-                  id="licenseKey"
-                  type="text"
-                  autoComplete="off"
-                  value={licenseKey}
-                  onChange={(e) => setLicenseKey(e.target.value)}
-                  placeholder="e.g. GENIE-INST-2026-XXXX"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
-                />
-              </div>
-            </div>
+          {/* 3-Tier Switcher Tabs */}
+          <div className="grid grid-cols-2 gap-2 p-1 bg-slate-950 rounded-2xl border border-slate-800">
+            <button
+              type="button"
+              onClick={() => setActiveTab('INSTITUTE')}
+              className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                activeTab === 'INSTITUTE'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Institute Admin</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('FACULTY')}
+              className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                activeTab === 'FACULTY'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>Faculty / HOD</span>
+            </button>
+          </div>
 
-            {statusMessage && (
-              <div className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs">
-                <AlertCircle className="w-4 h-4 shrink-0"/>
-                <span>{statusMessage}</span>
+          {/* Form */}
+          <form onSubmit={handleInstantLaunch} className="space-y-4 text-xs">
+            {activeTab === 'INSTITUTE' ? (
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">
+                  Institutional License Key
+                </label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    required
+                    value={licenseKeyInput}
+                    onChange={(e) => setLicenseKeyInput(e.target.value)}
+                    placeholder="e.g. GENIE-INST-2026-ACTIVE"
+                    className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Full administrative authority: Student/Faculty CSV imports, NBA Attainment, and statutory registers.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <label className="block font-bold text-slate-300 mb-1">
+                    Select Faculty Profile
+                  </label>
+                  <select
+                    value={selectedFaculty}
+                    onChange={(e) => setSelectedFaculty(e.target.value)}
+                    className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="Dr. Hiteshkumar Agrawal (Principal)">
+                      Dr. Hiteshkumar Agrawal (Principal &amp; Professor - 16h)
+                    </option>
+                    <option value="Prof. Snehal Deshmukh (Lecturer)">
+                      Prof. Snehal Deshmukh (Lecturer - 18h)
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-300 mb-1">
+                    Faculty Access PIN (Optional)
+                  </label>
+                  <input
+                    type="password"
+                    value={facultyPin}
+                    onChange={(e) => setFacultyPin(e.target.value)}
+                    placeholder="Enter assigned PIN or press Enter"
+                    className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono text-xs focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
               </div>
             )}
 
             <button
               type="submit"
-              disabled={isValidating}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 disabled:opacity-50 text-white rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-700/20 cursor-pointer"
+              className={`w-full py-3 text-white font-black text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer ${
+                activeTab === 'INSTITUTE'
+                  ? 'bg-indigo-600 hover:bg-indigo-500'
+                  : 'bg-emerald-600 hover:bg-emerald-500'
+              }`}
             >
-              <span>{isValidating ? 'Validating Credentials...' : 'Activate Institution Workspace'}</span>
-              <ArrowRight className="w-4 h-4"/>
+              <span>Enter Workspace ({activeTab === 'INSTITUTE' ? 'Executive Admin' : 'Teaching Faculty'})</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          {/* Request Pilot Access Box */}
-          <div className="p-4 rounded-xl border border-blue-100 bg-blue-50/60 space-y-2.5">
-            <div className="flex items-center gap-2 text-blue-900">
-              <Building2 className="w-4 h-4 shrink-0 text-blue-700"/>
-              <h2 className="text-xs font-bold uppercase tracking-wider">
-                Request Institutional Pilot Access
-              </h2>
-            </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Institutions onboarding for PCI ER-2020, MSBTE J-Scheme, or NBA Tier-II accreditation can request an authorized institutional license key.
-            </p>
+          {/* Quick Launch Pre-configured Profile */}
+          <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+            <span>D. P. Kharde Navjeevan COP</span>
             <button
               type="button"
-              onClick={() => setIsRequestModalOpen(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 hover:text-blue-900 transition-colors pt-1 cursor-pointer"
+              onClick={() => onActivated('tenant_dpkcop', { key: 'GENIE-INST-5539-ACTIVE', type: 'ENTERPRISE', seats: 35 })}
+              className="text-amber-400 hover:text-amber-300 font-bold underline cursor-pointer"
             >
-              <Mail className="w-3.5 h-3.5"/>
-              <span>Contact Platform Super Admin</span>
-              <ArrowRight className="w-3.5 h-3.5"/>
+              1-Click Fast Launch →
             </button>
           </div>
 
-          <div className="flex items-start gap-2 text-[11px] text-slate-500">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"/>
-            <span>
-              Multi-tenant architecture: Each institution operates with dedicated data isolation and PostgreSQL Row-Level Security (RLS).
-            </span>
-          </div>
         </div>
-      </div>
-
-      {/* Footer */}
-      <div className="w-full max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-1.5 pt-2">
-        <span>FACULTY AI GENIE™ • Academic Operating System</span>
-        <span className="flex items-center gap-1">
-          <HelpCircle className="w-3 h-3 text-slate-400"/>
-          Technical Support &amp; Governance
-        </span>
-      </div>
-
-      {/* REQUEST ACCESS IN-APP MODAL */}
-      {isRequestModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-2xl max-w-xl w-full space-y-4 my-auto">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2 text-blue-900 font-bold">
-                <Building2 className="w-5 h-5 text-blue-700" />
-                <span>Institutional Pilot &amp; Access Request</span>
-              </div>
-              <button
-                onClick={() => {
-                  setIsRequestModalOpen(false);
-                  setFormSubmitted(false);
-                }}
-                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {formSubmitted ? (
-              <div className="py-6 text-center space-y-3">
-                <div className="w-12 h-12 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto">
-                  <CheckCircle2 className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Request Prepared Successfully!</h3>
-                <p className="text-xs text-slate-600 max-w-sm mx-auto leading-relaxed">
-                  Your institutional accreditation profile has been compiled. You can copy the request dossier or dispatch it via your preferred mail client:
-                </p>
-                <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-left font-mono text-xs text-slate-700 whitespace-pre-wrap max-h-52 overflow-y-auto">
-                  {emailText}
-                </div>
-                <div className="flex items-center justify-center gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={copyEmailDetails}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"
-                  >
-                    <Copy className="w-4 h-4" />
-                    <span>{copied ? 'Copied to Clipboard!' : 'Copy Form Details'}</span>
-                  </button>
-                  <a
-                    href={`mailto:agrawal.hiteshkumar@gmail.com?subject=${encodeURIComponent('FACULTY AI GENIE — Institutional Pilot Request (MSBTE J-Scheme)')}&body=${encodeURIComponent(emailText)}`}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition border border-slate-300 cursor-pointer"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span>Open in Email App</span>
-                  </a>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleRequestSubmit} className="space-y-3.5 text-xs">
-                <p className="text-slate-500 text-[11px] leading-relaxed">
-                  Provide your institution's statutory credentials across AISHE, DTE, MSBTE, and PCI to initiate multi-tenant license key generation.
-                </p>
-
-                {/* College Legal Name */}
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Institution Legal Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Samarth Institute of Pharmacy"
-                    value={reqForm.instName}
-                    onChange={(e) => setReqForm({ ...reqForm, instName: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
-                  />
-                </div>
-
-                {/* 4 Separate Statutory Codes Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">AISHE Code *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. C-45123"
-                      value={reqForm.aisheCode}
-                      onChange={(e) => setReqForm({ ...reqForm, aisheCode: e.target.value })}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none font-mono text-[11px]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">DTE Code *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. 5225"
-                      value={reqForm.dteCode}
-                      onChange={(e) => setReqForm({ ...reqForm, dteCode: e.target.value })}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none font-mono text-[11px]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">MSBTE Code *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. 1152"
-                      value={reqForm.msbteCode}
-                      onChange={(e) => setReqForm({ ...reqForm, msbteCode: e.target.value })}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none font-mono text-[11px]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">PCI Code *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. PCI-2144"
-                      value={reqForm.pciCode}
-                      onChange={(e) => setReqForm({ ...reqForm, pciCode: e.target.value })}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none font-mono text-[11px]"
-                    />
-                  </div>
-                </div>
-
-                {/* Scheme & Coordinator Name */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Curriculum Scheme</label>
-                    <input
-                      type="text"
-                      value={reqForm.scheme}
-                      onChange={(e) => setReqForm({ ...reqForm, scheme: e.target.value })}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Authorized Coordinator / HOD *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Principal / HOD Name"
-                      value={reqForm.contactName}
-                      onChange={(e) => setReqForm({ ...reqForm, contactName: e.target.value })}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Contact Email & Phone */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Official Institutional Email *</label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="principal@college.edu.in"
-                      value={reqForm.email}
-                      onChange={(e) => setReqForm({ ...reqForm, email: e.target.value })}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Phone / WhatsApp Number</label>
-                    <input
-                      type="tel"
-                      placeholder="+91 98XXXXXXXX"
-                      value={reqForm.phone}
-                      onChange={(e) => setReqForm({ ...reqForm, phone: e.target.value })}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:bg-white focus:border-blue-600 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
-                  <button
-                    type="button"
-                    onClick={() => setIsRequestModalOpen(false)}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl shadow-md cursor-pointer"
-                  >
-                    Submit Request Dossier
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
+      </main>
     </div>
   );
 }
