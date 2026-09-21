@@ -16,6 +16,7 @@ import {
   KeyRound,
   Lock,
   ShieldCheck,
+  X,
 } from 'lucide-react';
 import { UserRole, InstitutionalLicense, FacultyMaster } from '../types';
 
@@ -40,6 +41,8 @@ interface SidebarProps {
   onOpenSuperAdmin?: () => void;
   license?: InstitutionalLicense | null;
   currentFaculty?: FacultyMaster;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -52,6 +55,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenSuperAdmin,
   license,
   currentFaculty,
+  isOpen = false,
+  onClose,
 }) => {
   const isAdjunct =
     currentFaculty?.employmentType === 'ADJUNCT_VISITING' ||
@@ -146,9 +151,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
   ];
 
-  return (
-    <aside className="w-full lg:w-64 bg-white border-r border-slate-200 flex-shrink-0 lg:min-h-[calc(100vh-4rem)] flex flex-col justify-between py-4 shadow-sm">
+  const handleTabClick = (tab: NavTab) => {
+    setCurrentTab(tab);
+    if (onClose) onClose();
+  };
+
+  const sidebarContent = (
+    <div className="flex flex-col justify-between h-full py-4">
       <div className="px-3 space-y-1">
+        {/* Mobile Header with Close Button */}
+        <div className="flex items-center justify-between px-3 pb-3 lg:hidden border-b border-slate-100 mb-2">
+          <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Navigation</span>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+              aria-label="Close Navigation"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
         {/* Adjunct / Visiting Faculty Scope Banner */}
         {isAdjunct && (
           <div className="mb-3 p-2.5 bg-amber-50 rounded-xl border border-amber-200/80 text-amber-900 space-y-1">
@@ -162,7 +186,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        <div className="px-3 pb-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+        <div className="hidden lg:block px-3 pb-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
           Primary Navigation
         </div>
 
@@ -174,7 +198,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={item.id}
               id={`nav-item-${item.id.toLowerCase()}`}
-              onClick={() => setCurrentTab(item.id)}
+              onClick={() => handleTabClick(item.id)}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all duration-150 ${
                 isActive
                   ? 'bg-slate-900 text-white font-semibold shadow-sm ring-1 ring-slate-900'
@@ -246,7 +270,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {onOpenSuperAdmin && (
           <button
-            onClick={onOpenSuperAdmin}
+            onClick={() => {
+              if (onClose) onClose();
+              onOpenSuperAdmin();
+            }}
             className="w-full py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
           >
             <Crown className="w-3.5 h-3.5 text-amber-600" />
@@ -254,6 +281,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         )}
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <aside className="hidden lg:flex w-64 bg-white border-r border-slate-200 flex-shrink-0 min-h-[calc(100vh-4rem)] flex-col shadow-sm">
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile Drawer Overlay & Sliding Panel */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+            onClick={onClose}
+          />
+
+          {/* Drawer Content */}
+          <div className="relative w-4/5 max-w-xs bg-white shadow-2xl flex flex-col z-10 overflow-y-auto">
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
