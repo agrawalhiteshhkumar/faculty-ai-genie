@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Lock, ShieldAlert, ArrowRight } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { ExecutiveHeader } from './components/ExecutiveHeader';
 import { Sidebar, NavTab } from './components/Sidebar';
@@ -142,7 +141,7 @@ export default function App() {
         if (data.actionTakenReports?.length) setActionTakenReports(data.actionTakenReports);
       }
     } catch {
-      // Offline / client-first resilience
+      // Offline fallback preserves local storage state
     }
   }, [tenantId, licenseKey]);
 
@@ -155,7 +154,7 @@ export default function App() {
     newTenantId?: string,
     newLicense?: InstitutionalLicense
   ) => {
-    const tid = newTenantId || 'tenant_default';
+    const tid = newTenantId || 'tenant_dpkcop';
     const key = newLicense?.key || 'GENIE-INST-2026-ACTIVE';
 
     localStorage.setItem('faculty_genie_tenant_id', tid);
@@ -198,7 +197,7 @@ export default function App() {
     setIsSuperAdminUser(false);
   };
 
-  // Immediate Institution Profile Commit without page reload
+  // Save Institution Profile directly to persistent storage
   const handleSaveInstitution = async (profile: InstitutionProfile) => {
     localStorage.setItem('faculty_genie_institution', JSON.stringify(profile));
     setInstitution(profile);
@@ -320,18 +319,22 @@ export default function App() {
   // VIEW ROUTING
   // ---------------------------------------------------------------------------
 
-  // 1. Super Admin View
+  // 1. Super Admin Full Workspace
   if (isSuperAdminViewOpen) {
     return <SuperAdminDashboard onExit={handleExitSuperAdmin} />;
   }
 
-  // 2. Activation Gateway
+  // 2. Multi-Tier Activation Gateway (Direct SuperAdmin bypass wired)
   if (!tenantId || !licenseKey) {
     return (
       <>
         <ActivationGateway
-          onActivated={() => handleActivationSuccess()}
+          onActivated={(tid, lic, role) => {
+            if (role) setActiveRole(role);
+            handleActivationSuccess(tid, lic);
+          }}
           onOpenSuperAdmin={handleOpenSuperAdmin}
+          onSuperAdminSuccess={handleSuperAdminLoginSuccess}
         />
         <SuperAdminLoginModal
           isOpen={isSuperAdminLoginModalOpen}
