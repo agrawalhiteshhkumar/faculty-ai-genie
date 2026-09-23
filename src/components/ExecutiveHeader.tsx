@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAsset, saveAsset, compressImage } from '../utils/assetStorage';
-import { Building2, UserCheck, Crown, CheckCircle2 } from 'lucide-react';
+import { Building2, UserCheck, Crown, CheckCircle2, Mail, Phone } from 'lucide-react';
 import brightpathLogo from '../../brightpath-logo.png';
 
 interface ExecutiveHeaderProps {
@@ -102,46 +102,40 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
                 AISHE: <strong>S-22693</strong>
               </span>
               <span className="bg-emerald-950 text-emerald-300 border border-emerald-800 px-1.5 py-0.2 rounded font-sans font-bold">
-                QCI • NBA Tier-II • AICTE
+                QCI Compliant
               </span>
             </div>
           </div>
         </div>
 
-        {/* 2. Center: Authorizing Executive Signature & Signatory Block */}
-        <div className="w-full lg:w-auto bg-slate-900/90 border border-slate-800 rounded-xl px-3.5 py-2 text-xs flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-blue-950 border border-blue-800/80 flex items-center justify-center text-amber-400 font-black shrink-0 shadow-xs">
-              HA
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-slate-100 text-xs truncate">
-                  Dr. Hiteshkumar Agrawal
-                </span>
-                <span className="inline-flex items-center gap-1 text-[8px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800 px-1 py-0.2 rounded-full">
-                  <CheckCircle2 className="w-2.5 h-2.5" />
-                  Signatory Active
-                </span>
-              </div>
-              <div className="text-[10px] text-amber-300 font-medium truncate">
-                Founder, Faculty AI Genie™ • Principal, DPKCOP
-              </div>
-              <div className="text-[9px] text-slate-400 font-mono flex items-center gap-1.5 mt-0.5">
-                <span>hiteshhkumar.agrawal@gmail.com</span>
-                <span>•</span>
-                <span>+91 9637521852</span>
-              </div>
-            </div>
+        {/* 2. Center: Authorizing Executive Signature & Signatory Block with Clean Alignment */}
+        <div className="w-full lg:w-auto bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-2.5 text-xs flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-900/80 border border-blue-700/80 flex items-center justify-center text-amber-300 font-black text-sm shrink-0 shadow-xs">
+            HA
           </div>
-
-          {/* Stylized Digital Signature Graphic */}
-          <div className="hidden sm:block pl-3 border-l border-slate-800 text-right">
-            <div className="font-serif italic text-blue-300 text-xs font-bold tracking-wider select-none">
-              H. K. Agrawal
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="font-extrabold text-slate-100 text-xs">
+                Dr. Hiteshkumar Agrawal
+              </span>
+              <span className="inline-flex items-center gap-1 text-[8px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.2 rounded-full">
+                <CheckCircle2 className="w-2.5 h-2.5" />
+                Signatory Active
+              </span>
             </div>
-            <div className="text-[8px] text-slate-500 font-mono uppercase tracking-widest">
-              Digital Seal
+            <div className="text-[10px] text-amber-300 font-medium">
+              Founder, Faculty AI Genie™ • Principal, DPKCOP
+            </div>
+            <div className="text-[9px] text-slate-300 font-mono flex items-center gap-2 mt-1">
+              <span className="flex items-center gap-1">
+                <Mail className="w-3 h-3 text-slate-400" />
+                hiteshhkumar.agrawal@gmail.com
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <Phone className="w-3 h-3 text-slate-400" />
+                +91 9637521852
+              </span>
             </div>
           </div>
         </div>
