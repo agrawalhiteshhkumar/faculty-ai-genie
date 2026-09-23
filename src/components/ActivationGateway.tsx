@@ -10,7 +10,8 @@ import {
   Mail, 
   Lock,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Phone
 } from 'lucide-react';
 import brightpathLogo from '../../brightpath-logo.png';
 
@@ -127,11 +128,11 @@ export function ActivationGateway({
   return (
     <div className="min-h-screen bg-slate-100/80 text-slate-800 flex flex-col font-sans">
       
-      {/* 1. Official Platform Master Header: BrightPath & Faculty AI Genie */}
+      {/* 1. Official Platform Master Header */}
       <header className="w-full bg-white border-b border-slate-200 px-4 sm:px-6 py-3 shadow-sm">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           
-          {/* Platform Identity: BrightPath / Faculty AI Genie */}
+          {/* Platform Identity */}
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-center p-1 shrink-0 overflow-hidden">
               <img 
@@ -193,51 +194,53 @@ export function ActivationGateway({
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl space-y-5">
           
-          {/* Digital Signatory Endorsement Card with Formal Signature */}
-          <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 border border-slate-200 rounded-2xl p-4 space-y-2">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-full bg-blue-700 text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0">
-                  HA
-                </div>
-                <div>
-                  <div className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+          {/* Digital Signatory Endorsement Card with Clear Alignment */}
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-blue-700 text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0">
+                HA
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-sm font-black text-slate-900">
                     Dr. Hiteshkumar Agrawal
-                    <span className="text-[9px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.2 rounded font-semibold inline-flex items-center gap-0.5">
-                      <CheckCircle2 className="w-2.5 h-2.5" />
-                      Signatory Verified
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-blue-900 font-bold">
-                    Founder &amp; Chief Academic Architect, Faculty AI Genie™
-                  </div>
-                  <div className="text-[10px] text-slate-500">
-                    Principal, D. P. Kharde Navjeevan College of Pharmacy, Sinnar
-                  </div>
+                  </span>
+                  <span className="text-[9px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.2 rounded font-semibold inline-flex items-center gap-0.5">
+                    <CheckCircle2 className="w-2.5 h-2.5" />
+                    Signatory Verified
+                  </span>
+                </div>
+                <div className="text-[11px] text-blue-900 font-bold mt-0.5">
+                  Founder &amp; Chief Academic Architect, Faculty AI Genie™
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  Principal, D. P. Kharde Navjeevan College of Pharmacy, Sinnar
                 </div>
               </div>
             </div>
 
-            {/* Stylized Signature Script Block */}
-            <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between">
-              <div className="text-[10px] text-slate-400 font-mono">
-                ✉ hiteshhkumar.agrawal@gmail.com • ✆ +91 9637521852
+            {/* Aligned Contact Info Bar */}
+            <div className="pt-2 border-t border-slate-200 text-[11px] text-slate-600 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 font-medium">
+              <div className="flex items-center gap-1.5 text-slate-700">
+                <Mail className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span className="select-all">hiteshhkumar.agrawal@gmail.com</span>
               </div>
-              <div className="font-serif italic text-blue-950 font-bold text-sm tracking-wider select-none pr-1">
-                H. K. Agrawal
+              <div className="flex items-center gap-1.5 text-slate-700">
+                <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span className="font-mono select-all">+91 9637521852</span>
               </div>
             </div>
           </div>
 
-          {/* Heading with Updated Statutory Bodies */}
+          {/* Heading with Updated Statutory Bodies (AICTE completely removed) */}
           <div className="text-center space-y-1.5">
             <h2 className="text-xl font-black text-slate-900 tracking-tight">
               Academic OS Gateway
             </h2>
-            <div className="text-[11px] font-bold text-indigo-900 bg-indigo-50/70 border border-indigo-100 rounded-lg py-1 px-2 leading-relaxed">
+            <div className="text-[11px] font-bold text-indigo-900 bg-indigo-50/70 border border-indigo-100 rounded-lg py-1.5 px-3 leading-relaxed">
               Mapped Statutory &amp; Accreditation Standards:
-              <div className="text-[10px] font-black text-slate-700 mt-0.5 tracking-wide">
-                MSBTE • PCI • QCI • AICTE • NBA (Tier-II) • DTE • AISHE
+              <div className="text-[10px] font-black text-slate-800 mt-0.5 tracking-wider font-mono">
+                MSBTE • PCI • QCI • DTE • AISHE
               </div>
             </div>
           </div>
@@ -446,7 +449,7 @@ export function ActivationGateway({
           )}
 
           <div className="pt-2 text-center text-[10px] text-slate-400 border-t border-slate-100">
-            Powered by BrightPath • Multi-Tenant Isolated PostgreSQL Architecture
+            Powered by BrightPath • Multi-Tenant Isolated Architecture
           </div>
 
         </div>
