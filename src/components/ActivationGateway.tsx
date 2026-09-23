@@ -3,15 +3,16 @@
 import React, { useState } from 'react';
 import { 
   Building2, 
-  ShieldCheck, 
   ArrowRight, 
   Crown, 
   UserCheck, 
   KeyRound, 
   Mail, 
   Lock,
-  AlertCircle 
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react';
+import brightpathLogo from '../../brightpath-logo.png';
 
 interface ActivationGatewayProps {
   onActivated: (tenantId?: string, license?: any, userRole?: 'ADMIN' | 'FACULTY', facultyEmail?: string) => void;
@@ -101,7 +102,7 @@ export function ActivationGateway({
     );
   };
 
-  // 3. Platform SuperAdmin Authentication Gate (Direct Bypass to Dashboard)
+  // 3. Platform SuperAdmin Authentication Gate
   const handleSuperAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -124,35 +125,51 @@ export function ActivationGateway({
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-100/80 text-slate-800 flex flex-col font-sans">
       
-      {/* 1. Official Executive Institutional Banner (White / Slate Theme) */}
+      {/* 1. Official Platform Master Header: BrightPath & Faculty AI Genie */}
       <header className="w-full bg-white border-b border-slate-200 px-4 sm:px-6 py-3 shadow-sm">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-blue-700 text-white rounded-xl flex items-center justify-center font-bold text-base shadow-sm shrink-0">
-              HA
+          
+          {/* Platform Identity: BrightPath / Faculty AI Genie */}
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-center p-1 shrink-0 overflow-hidden">
+              <img 
+                src={brightpathLogo} 
+                alt="BrightPath Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
-              <div className="text-[10px] font-bold text-blue-800 uppercase tracking-wider">
-                Navjeevan Education Society's
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-black tracking-tight text-blue-900 uppercase">
+                  Faculty AI Genie™
+                </span>
+                <span className="text-[10px] bg-blue-100 text-blue-800 font-extrabold px-1.5 py-0.2 rounded font-mono">
+                  v2026.4
+                </span>
               </div>
-              <h1 className="text-sm sm:text-base font-black text-slate-900">
-                D. P. Kharde Navjeevan College of Pharmacy, Sinnar
-              </h1>
-              <div className="text-[10px] text-slate-500 font-mono flex items-center gap-2">
-                <span>MSBTE: <strong>62386</strong></span>
-                <span>•</span>
-                <span>DTE: <strong>5539</strong></span>
-                <span>•</span>
-                <span>PCI: <strong>9178</strong></span>
-                <span>•</span>
-                <span>AISHE: <strong>S-22693</strong></span>
+              <div className="text-[11px] font-black tracking-wide text-slate-800">
+                A Product of <span className="text-blue-700">BrightPath</span>
+              </div>
+              <div className="text-[9px] font-bold text-amber-600 tracking-wider">
+                LEARN. SKILL. SUCCEED.
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Institutional Deployment & SuperAdmin Gateway Trigger */}
+          <div className="flex items-center gap-3">
+            <div className="hidden md:block text-right">
+              <div className="text-[10px] text-slate-400 font-medium">Provisioned Institutional Client</div>
+              <div className="text-xs font-bold text-slate-700">
+                D. P. Kharde Navjeevan College of Pharmacy, Sinnar
+              </div>
+              <div className="text-[9px] font-mono text-slate-500">
+                MSBTE: 62386 • DTE: 5539 • PCI: 9178 • AISHE: S-22693
+              </div>
+            </div>
+
             <button
               type="button"
               onClick={() => {
@@ -172,35 +189,57 @@ export function ActivationGateway({
         </div>
       </header>
 
-      {/* 2. Main Login Card in Clean White */}
+      {/* 2. Main Authentication Card */}
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl space-y-5">
           
-          {/* Executive Signatory Seal */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
-              <div>
-                <div className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
-                  Dr. Hiteshkumar Agrawal
-                  <span className="text-[9px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.2 rounded font-semibold">
-                    Signatory Verified
-                  </span>
+          {/* Digital Signatory Endorsement Card with Formal Signature */}
+          <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 border border-slate-200 rounded-2xl p-4 space-y-2">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-full bg-blue-700 text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0">
+                  HA
                 </div>
-                <div className="text-[11px] text-slate-500">
-                  Principal &amp; Chief Academic Architect • MSBTE: 62386
+                <div>
+                  <div className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                    Dr. Hiteshkumar Agrawal
+                    <span className="text-[9px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.2 rounded font-semibold inline-flex items-center gap-0.5">
+                      <CheckCircle2 className="w-2.5 h-2.5" />
+                      Signatory Verified
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-blue-900 font-bold">
+                    Founder &amp; Chief Academic Architect, Faculty AI Genie™
+                  </div>
+                  <div className="text-[10px] text-slate-500">
+                    Principal, D. P. Kharde Navjeevan College of Pharmacy, Sinnar
+                  </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Stylized Signature Script Block */}
+            <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between">
+              <div className="text-[10px] text-slate-400 font-mono">
+                ✉ hiteshhkumar.agrawal@gmail.com • ✆ +91 9637521852
+              </div>
+              <div className="font-serif italic text-blue-950 font-bold text-sm tracking-wider select-none pr-1">
+                H. K. Agrawal
               </div>
             </div>
           </div>
 
-          <div className="text-center space-y-1">
+          {/* Heading with Updated Statutory Bodies */}
+          <div className="text-center space-y-1.5">
             <h2 className="text-xl font-black text-slate-900 tracking-tight">
               Academic OS Gateway
             </h2>
-            <p className="text-xs text-slate-500">
-              Statutory RBAC Access • MSBTE CIAAN-2023 &amp; PCI ER-2020
-            </p>
+            <div className="text-[11px] font-bold text-indigo-900 bg-indigo-50/70 border border-indigo-100 rounded-lg py-1 px-2 leading-relaxed">
+              Mapped Statutory &amp; Accreditation Standards:
+              <div className="text-[10px] font-black text-slate-700 mt-0.5 tracking-wide">
+                MSBTE • PCI • QCI • AICTE • NBA (Tier-II) • DTE • AISHE
+              </div>
+            </div>
           </div>
 
           {/* 3-Tier Switcher Tabs */}
@@ -279,7 +318,7 @@ export function ActivationGateway({
                   />
                 </div>
                 <p className="text-[10px] text-slate-500 mt-1">
-                  Enter statutory license key issued during institutional onboarding.
+                  Unique license issued for your college workspace (MSBTE/PCI).
                 </p>
               </div>
 
@@ -328,7 +367,7 @@ export function ActivationGateway({
                   />
                 </div>
                 <p className="text-[10px] text-slate-500 mt-1">
-                  Must match the official email entered in the Faculty Master.
+                  Must match the official email registered in the Faculty Master.
                 </p>
               </div>
 
@@ -407,7 +446,7 @@ export function ActivationGateway({
           )}
 
           <div className="pt-2 text-center text-[10px] text-slate-400 border-t border-slate-100">
-            Isolated Multi-Tenant Security • End-to-End Statutory Compliance
+            Powered by BrightPath • Multi-Tenant Isolated PostgreSQL Architecture
           </div>
 
         </div>
