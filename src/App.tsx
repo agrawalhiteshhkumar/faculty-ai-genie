@@ -10,6 +10,7 @@ import { AssessView } from './components/views/AssessView';
 import { StudentsView } from './components/views/StudentsView';
 import { OutcomesView } from './components/views/OutcomesView';
 import { DocumentsView } from './components/views/DocumentsView';
+import { QCIAccreditationView } from './components/views/QCIAccreditationView';
 import { InstitutionSetupView } from './components/views/InstitutionSetupView';
 import { SuperAdminDashboard } from './components/views/SuperAdminDashboard';
 import { ActivationGateway } from './components/ActivationGateway';
@@ -324,7 +325,7 @@ export default function App() {
     return <SuperAdminDashboard onExit={handleExitSuperAdmin} />;
   }
 
-  // 2. Multi-Tier Activation Gateway (Direct SuperAdmin bypass wired)
+  // 2. Multi-Tier Activation Gateway
   if (!tenantId || !licenseKey) {
     return (
       <>
@@ -550,6 +551,15 @@ export default function App() {
               auditLogs={auditLogs}
               actionTakenReports={actionTakenReports}
               onNavigateTab={(tab) => setCurrentTab(tab)}
+            />
+          )}
+
+          {currentTab === 'QCI_ACCREDITATION' && (
+            <QCIAccreditationView
+              institution={institution}
+              subject={subject}
+              students={students}
+              actionTakenReports={actionTakenReports}
             />
           )}
         </main>
