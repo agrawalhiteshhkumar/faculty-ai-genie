@@ -20,6 +20,28 @@ import { DailyDiaryModal } from './components/DailyDiaryModal';
 import { SearchAssistantModal } from './components/SearchAssistantModal';
 import { CriticalSuccessTestModal } from './components/CriticalSuccessTestModal';
 
+// Phase 1 - 5 Module Imports
+import CohortSelector from './components/common/CohortSelector';
+import TeachingDiaryView from './components/common/TeachingDiaryView';
+import PracticalAssessmentView from './components/common/PracticalAssessmentView';
+import SessionalMarksheetView from './components/common/SessionalMarksheetView';
+import COAttainmentRemedialTracker from './components/common/COAttainmentRemedialTracker';
+import ConsolidatedCourseFileModal from './components/common/ConsolidatedCourseFileModal';
+
+import { INITIAL_COHORTS, INITIAL_WORKLOADS } from './services/cohortService';
+import {
+  INITIAL_TEACHING_DIARY_RECORDS,
+  INITIAL_PRACTICAL_LOGS,
+} from './services/dateEngineService';
+import {
+  INITIAL_SESSIONAL_MARKS,
+  INITIAL_INTERNAL_ASSESSMENT,
+} from './services/examService';
+import {
+  INITIAL_COURSE_OUTCOMES,
+  INITIAL_STUDENT_CO_SCORES,
+} from './services/coAttainmentService';
+
 import {
   UserRole,
   InstitutionalLicense,
@@ -41,6 +63,15 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<NavTab>('HOME');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Phase 1 - 5 Statutory Module State
+  const [activeStatutoryTab, setActiveStatutoryTab] = useState<
+    'OVERVIEW' | 'PH4_DIARY' | 'PH5_PRACTICAL' | 'SESSIONAL_CIA' | 'CO_BLOOMS'
+  >('OVERVIEW');
+  const [selectedCohortId, setSelectedCohortId] = useState<string>('FY_DPHARM');
+  const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('ER20-11T');
+  const [selectedBatchId, setSelectedBatchId] = useState<string>('FY_BATCH_A1');
+  const [isDossierModalOpen, setIsDossierModalOpen] = useState(false);
+
   // Multi-Tenant Session State
   const [tenantId, setTenantId] = useState<string | null>(() => {
     return localStorage.getItem('faculty_genie_tenant_id') || null;
@@ -56,7 +87,6 @@ export default function App() {
   const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
 
   // Core Institutional State
-  const [loading, setLoading] = useState(false);
   const [institution, setInstitution] = useState<InstitutionProfile | null>(() => {
     const saved = localStorage.getItem('faculty_genie_institution');
     return saved ? JSON.parse(saved) : null;
@@ -94,7 +124,6 @@ export default function App() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isSuccessTestModalOpen, setIsSuccessTestModalOpen] = useState(false);
 
-  // Persona Sync Handler between ExecutiveHeader & App UserRole
   const handleRoleSwitch = (persona: 'ADMIN' | 'FACULTY') => {
     if (persona === 'ADMIN') {
       setActiveRole('ADMIN');
@@ -103,7 +132,6 @@ export default function App() {
     }
   };
 
-  // Bootstrap Loader with Client-First Resilience
   const fetchBootstrapData = useCallback(async () => {
     const localInst = localStorage.getItem('faculty_genie_institution');
     if (localInst) {
@@ -142,7 +170,7 @@ export default function App() {
         if (data.actionTakenReports?.length) setActionTakenReports(data.actionTakenReports);
       }
     } catch {
-      // Offline fallback preserves local storage state
+      // Offline fallback
     }
   }, [tenantId, licenseKey]);
 
@@ -150,7 +178,6 @@ export default function App() {
     fetchBootstrapData();
   }, [fetchBootstrapData]);
 
-  // Handle License Activation Success
   const handleActivationSuccess = (
     newTenantId?: string,
     newLicense?: InstitutionalLicense
@@ -166,7 +193,6 @@ export default function App() {
     setCurrentTab('SETUP');
   };
 
-  // Exit / Logout of Workspace
   const handleExitWorkspace = () => {
     if (window.confirm('Do you want to exit this institutional workspace?')) {
       localStorage.removeItem('faculty_genie_tenant_id');
@@ -182,7 +208,6 @@ export default function App() {
     }
   };
 
-  // Super Admin Handlers
   const handleOpenSuperAdmin = () => {
     setIsSuperAdminLoginModalOpen(true);
   };
@@ -198,14 +223,12 @@ export default function App() {
     setIsSuperAdminUser(false);
   };
 
-  // Save Institution Profile directly to persistent storage
   const handleSaveInstitution = async (profile: InstitutionProfile) => {
     localStorage.setItem('faculty_genie_institution', JSON.stringify(profile));
     setInstitution(profile);
     setCurrentTab('HOME');
   };
 
-  // Reset to Blank
   const handleResetDatabase = async () => {
     if (window.confirm('Clear all local data and reset institution setup?')) {
       localStorage.removeItem('faculty_genie_institution');
@@ -221,7 +244,6 @@ export default function App() {
     }
   };
 
-  // Load Complete Sample PCI ER-2020 / MSBTE J-Scheme Dataset
   const handleLoadSampleDataset = async () => {
     const sampleProfile: InstitutionProfile = {
       id: 'inst-dpkcop',
@@ -301,8 +323,7 @@ export default function App() {
     setCurrentTab('HOME');
   };
 
-  // Attendance, Diary & Assessment Handlers
-  const handleSaveAttendance = async (slotId: string, absentIds: string[]) => {
+  const handleSaveAttendance = async (slotId: string, _absentIds: string[]) => {
     setTimetable((prev) =>
       prev.map((s) => (s.id === slotId ? { ...s, status: { ...s.status, attendanceMarked: true } } : s))
     );
@@ -316,16 +337,10 @@ export default function App() {
     setStudentMarks(marks);
   };
 
-  // ---------------------------------------------------------------------------
-  // VIEW ROUTING
-  // ---------------------------------------------------------------------------
-
-  // 1. Super Admin Full Workspace
   if (isSuperAdminViewOpen) {
     return <SuperAdminDashboard onExit={handleExitSuperAdmin} />;
   }
 
-  // 2. Multi-Tier Activation Gateway
   if (!tenantId || !licenseKey) {
     return (
       <>
@@ -360,7 +375,6 @@ export default function App() {
       assignedSubjects: [],
     };
 
-  // 3. Institution Setup Screen
   if (!institution || !institution.name || currentTab === 'SETUP') {
     return (
       <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans">
@@ -411,10 +425,11 @@ export default function App() {
     );
   }
 
-  // 4. Full Operational Academic OS Workspace
   const pendingAttendanceCount = timetable.filter((s) => !s.status?.attendanceMarked).length;
   const defaultersCount = students.filter((s) => s.isDefaulter).length;
   const lowAttainmentCount = coAttainment.filter((c) => !c.isAttained && c.studentsAttempted > 0).length;
+
+  const currentSelectedCohort = INITIAL_COHORTS.find((c) => c.id === selectedCohortId);
 
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans">
@@ -458,112 +473,258 @@ export default function App() {
           onClose={() => setIsMobileMenuOpen(false)}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-x-hidden">
-          {currentTab === 'HOME' && (
-            <HomeView
-              activeRole={activeRole}
-              timetable={timetable}
-              students={students}
-              coAttainment={coAttainment}
-              onNavigateTab={(tab) => setCurrentTab(tab)}
-              onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
-              onOpenDailyDiary={(slot) => {
-                setActiveDiarySlot(slot);
-                setIsDiaryModalOpen(true);
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-x-hidden space-y-6">
+          {/* Statutory Curricular Command Bar */}
+          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 shadow-lg text-white">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="bg-blue-600 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
+                  MSBTE / PCI ER-2020 OS
+                </span>
+                <span className="text-xs text-slate-400">Statutory Pharmacy Academic Controls</span>
+              </div>
+              <button
+                onClick={() => setIsDossierModalOpen(true)}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-colors shadow-md self-start md:self-auto"
+              >
+                Generate Institutional Dossier (PDF)
+              </button>
+            </div>
+
+            <div className="mt-3">
+              <CohortSelector
+                cohorts={INITIAL_COHORTS}
+                workloads={INITIAL_WORKLOADS}
+                selectedClassId={selectedCohortId}
+                selectedSubjectCode={selectedSubjectCode}
+                selectedBatchId={selectedBatchId}
+                onClassChange={setSelectedCohortId}
+                onSubjectChange={setSelectedSubjectCode}
+                onBatchChange={setSelectedBatchId}
+              />
+            </div>
+
+            {/* Sub-Tabs for Direct Access to Phases 2-4 */}
+            <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-slate-800/80">
+              <button
+                onClick={() => setActiveStatutoryTab('OVERVIEW')}
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                  activeStatutoryTab === 'OVERVIEW'
+                    ? 'bg-slate-800 text-white border border-slate-700'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                }`}
+              >
+                Dashboard Overview
+              </button>
+              <button
+                onClick={() => setActiveStatutoryTab('PH4_DIARY')}
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                  activeStatutoryTab === 'PH4_DIARY'
+                    ? 'bg-emerald-600 text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                }`}
+              >
+                Teaching Diary (PH-4)
+              </button>
+              <button
+                onClick={() => setActiveStatutoryTab('PH5_PRACTICAL')}
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                  activeStatutoryTab === 'PH5_PRACTICAL'
+                    ? 'bg-amber-600 text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                }`}
+              >
+                Practical Continuous Log (PH-5)
+              </button>
+              <button
+                onClick={() => setActiveStatutoryTab('SESSIONAL_CIA')}
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                  activeStatutoryTab === 'SESSIONAL_CIA'
+                    ? 'bg-purple-600 text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                }`}
+              >
+                Sessionals &amp; CIAAN-2023
+              </button>
+              <button
+                onClick={() => setActiveStatutoryTab('CO_BLOOMS')}
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                  activeStatutoryTab === 'CO_BLOOMS'
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                }`}
+              >
+                CO Attainment &amp; Remedial
+              </button>
+            </div>
+          </div>
+
+          {/* Render Active Statutory Module */}
+          {activeStatutoryTab === 'PH4_DIARY' && (
+            <TeachingDiaryView
+              classId={selectedCohortId}
+              subjectCode={selectedSubjectCode}
+              initialRecords={INITIAL_TEACHING_DIARY_RECORDS}
+              onGenerateChalkieDeck={(_r) => {
+                alert(`Chalkie AI Lesson Deck generated for: ${_r.topicOrExperimentTitle}`);
               }}
-              onRunSuccessTest={() => setIsSuccessTestModalOpen(true)}
             />
           )}
 
-          {currentTab === 'MY_WORK' && (
-            <MyWorkView
-              faculty={currentFaculty}
-              timetable={timetable}
-              teachingDiaryEntries={teachingDiaryEntries}
-              onOpenDailyDiary={(slot) => {
-                setActiveDiarySlot(slot);
-                setIsDiaryModalOpen(true);
+          {activeStatutoryTab === 'PH5_PRACTICAL' && (
+            <PracticalAssessmentView
+              classId={selectedCohortId}
+              subjectCode={selectedSubjectCode}
+              batchId={selectedBatchId}
+              initialLogs={INITIAL_PRACTICAL_LOGS}
+            />
+          )}
+
+          {activeStatutoryTab === 'SESSIONAL_CIA' && (
+            <SessionalMarksheetView
+              classId={selectedCohortId}
+              subjectCode={selectedSubjectCode}
+              initialSessionals={INITIAL_SESSIONAL_MARKS}
+              initialInternals={INITIAL_INTERNAL_ASSESSMENT}
+            />
+          )}
+
+          {activeStatutoryTab === 'CO_BLOOMS' && (
+            <COAttainmentRemedialTracker
+              subjectCode={selectedSubjectCode}
+              academicYear="2026-2027"
+              courseOutcomes={INITIAL_COURSE_OUTCOMES}
+              studentScores={INITIAL_STUDENT_CO_SCORES}
+              onTriggerRemedialModule={(_stdId, co) => {
+                alert(`Remedial action plan initialized for student ${_stdId} targeting ${co}`);
               }}
-              onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
-              onHODSignOff={() => {}}
             />
           )}
 
-          {currentTab === 'TEACH' && (
-            <TeachView
-              subject={subject}
-              students={students}
-              currentFaculty={currentFaculty}
-              institution={institution}
-              onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
-              onNavigateTab={(tab) => setCurrentTab(tab)}
-            />
-          )}
+          {activeStatutoryTab === 'OVERVIEW' && (
+            <>
+              {currentTab === 'HOME' && (
+                <HomeView
+                  activeRole={activeRole}
+                  timetable={timetable}
+                  students={students}
+                  coAttainment={coAttainment}
+                  onNavigateTab={(tab) => setCurrentTab(tab)}
+                  onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
+                  onOpenDailyDiary={(slot) => {
+                    setActiveDiarySlot(slot);
+                    setIsDiaryModalOpen(true);
+                  }}
+                  onRunSuccessTest={() => setIsSuccessTestModalOpen(true)}
+                />
+              )}
 
-          {currentTab === 'CREATE' && (
-            <CreateView
-              subject={subject}
-              onNavigateTab={(tab) => setCurrentTab(tab)}
-            />
-          )}
+              {currentTab === 'MY_WORK' && (
+                <MyWorkView
+                  faculty={currentFaculty}
+                  timetable={timetable}
+                  teachingDiaryEntries={teachingDiaryEntries}
+                  onOpenDailyDiary={(slot) => {
+                    setActiveDiarySlot(slot);
+                    setIsDiaryModalOpen(true);
+                  }}
+                  onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
+                  onHODSignOff={() => {}}
+                />
+              )}
 
-          {currentTab === 'ASSESS' && (
-            <AssessView
-              assessment={assessment}
-              students={students}
-              studentMarks={studentMarks}
-              subject={subject}
-              activeRole={activeRole}
-              institution={institution}
-              onSaveMarks={handleSaveMarks}
-              onNavigateTab={(tab) => setCurrentTab(tab)}
-            />
-          )}
+              {currentTab === 'TEACH' && (
+                <TeachView
+                  subject={subject}
+                  students={students}
+                  currentFaculty={currentFaculty}
+                  institution={institution}
+                  onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
+                  onNavigateTab={(tab) => setCurrentTab(tab)}
+                />
+              )}
 
-          {currentTab === 'STUDENTS' && (
-            <StudentsView
-              students={students}
-              institution={institution}
-              onNavigateTab={(tab) => setCurrentTab(tab)}
-            />
-          )}
+              {currentTab === 'CREATE' && (
+                <CreateView
+                  subject={subject}
+                  onNavigateTab={(tab) => setCurrentTab(tab)}
+                />
+              )}
 
-          {currentTab === 'OUTCOMES' && (
-            <OutcomesView
-              subject={subject}
-              coAttainment={coAttainment}
-              poAttainments={poAttainments}
-              programOutcomes={programOutcomes}
-              actionTakenReports={actionTakenReports}
-              activeRole={activeRole}
-              onSignOffATR={() => {}}
-              onDraftNewATR={() => {}}
-              onRecalculateWithThreshold={() => {}}
-              onNavigateTab={(tab) => setCurrentTab(tab)}
-            />
-          )}
+              {currentTab === 'ASSESS' && (
+                <AssessView
+                  assessment={assessment}
+                  students={students}
+                  studentMarks={studentMarks}
+                  subject={subject}
+                  activeRole={activeRole}
+                  institution={institution}
+                  onSaveMarks={handleSaveMarks}
+                  onNavigateTab={(tab) => setCurrentTab(tab)}
+                />
+              )}
 
-          {currentTab === 'DOCUMENTS' && (
-            <DocumentsView
-              institution={institution}
-              subject={subject}
-              students={students}
-              auditLogs={auditLogs}
-              actionTakenReports={actionTakenReports}
-              onNavigateTab={(tab) => setCurrentTab(tab)}
-            />
-          )}
+              {currentTab === 'STUDENTS' && (
+                <StudentsView
+                  students={students}
+                  institution={institution}
+                  onNavigateTab={(tab) => setCurrentTab(tab)}
+                />
+              )}
 
-          {currentTab === 'QCI_ACCREDITATION' && (
-            <QCIAccreditationView
-              institution={institution}
-              subject={subject}
-              students={students}
-              actionTakenReports={actionTakenReports}
-            />
+              {currentTab === 'OUTCOMES' && (
+                <OutcomesView
+                  subject={subject}
+                  coAttainment={coAttainment}
+                  poAttainments={poAttainments}
+                  programOutcomes={programOutcomes}
+                  actionTakenReports={actionTakenReports}
+                  activeRole={activeRole}
+                  onSignOffATR={() => {}}
+                  onDraftNewATR={() => {}}
+                  onRecalculateWithThreshold={() => {}}
+                  onNavigateTab={(tab) => setCurrentTab(tab)}
+                />
+              )}
+
+              {currentTab === 'DOCUMENTS' && (
+                <DocumentsView
+                  institution={institution}
+                  subject={subject}
+                  students={students}
+                  auditLogs={auditLogs}
+                  actionTakenReports={actionTakenReports}
+                  onNavigateTab={(tab) => setCurrentTab(tab)}
+                />
+              )}
+
+              {currentTab === 'QCI_ACCREDITATION' && (
+                <QCIAccreditationView
+                  institution={institution}
+                  subject={subject}
+                  students={students}
+                  actionTakenReports={actionTakenReports}
+                />
+              )}
+            </>
           )}
         </main>
       </div>
+
+      {/* Statutory Course File Dossier Modal */}
+      <ConsolidatedCourseFileModal
+        isOpen={isDossierModalOpen}
+        onClose={() => setIsDossierModalOpen(false)}
+        selectedClass={currentSelectedCohort}
+        subjectCode={selectedSubjectCode}
+        subjectTitle="Pharmaceutics - Theory & Practical"
+        facultyName={currentFaculty?.name || 'Dr. Hiteshkumar Agrawal'}
+        academicYear={institution?.academicYear || '2026-2027'}
+        diaryRecords={INITIAL_TEACHING_DIARY_RECORDS}
+        practicalLogs={INITIAL_PRACTICAL_LOGS}
+        sessionals={INITIAL_SESSIONAL_MARKS}
+        outcomes={INITIAL_COURSE_OUTCOMES}
+      />
 
       <QuickAttendanceModal
         isOpen={isAttendanceModalOpen}
