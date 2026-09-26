@@ -28,7 +28,8 @@ import SessionalMarksheetView from './components/common/SessionalMarksheetView';
 import COAttainmentRemedialTracker from './components/common/COAttainmentRemedialTracker';
 import ConsolidatedCourseFileModal from './components/common/ConsolidatedCourseFileModal';
 
-import { INITIAL_COHORTS, INITIAL_WORKLOADS } from './services/cohortService';
+import { AcademicClassCohort, FacultyWorkloadAllocation } from './cohortTypes';
+
 import {
   INITIAL_TEACHING_DIARY_RECORDS,
   INITIAL_PRACTICAL_LOGS,
@@ -57,6 +58,65 @@ import {
   ActionTakenReport,
   AuditLogEntry,
 } from './types';
+
+// Self-contained cohort definitions to guarantee zero import-export mismatch
+const LOCAL_COHORTS: AcademicClassCohort[] = [
+  {
+    id: 'FY_DPHARM',
+    name: 'First Year D. Pharmacy',
+    academicYear: '2026-2027',
+    semesterOrYear: 'First Year (Annual)',
+    totalIntake: 60,
+    batches: [
+      { id: 'FY_BATCH_A1', name: 'Batch A1', rollNumberRange: '01 - 20', studentCount: 20 },
+      { id: 'FY_BATCH_A2', name: 'Batch A2', rollNumberRange: '21 - 40', studentCount: 20 },
+      { id: 'FY_BATCH_A3', name: 'Batch A3', rollNumberRange: '41 - 60', studentCount: 20 },
+    ],
+  },
+  {
+    id: 'SY_DPHARM',
+    name: 'Second Year D. Pharmacy',
+    academicYear: '2026-2027',
+    semesterOrYear: 'Second Year (Annual)',
+    totalIntake: 60,
+    batches: [
+      { id: 'SY_BATCH_B1', name: 'Batch B1', rollNumberRange: '01 - 20', studentCount: 20 },
+      { id: 'SY_BATCH_B2', name: 'Batch B2', rollNumberRange: '21 - 40', studentCount: 20 },
+      { id: 'SY_BATCH_B3', name: 'Batch B3', rollNumberRange: '41 - 60', studentCount: 20 },
+    ],
+  },
+];
+
+const LOCAL_WORKLOADS: FacultyWorkloadAllocation[] = [
+  {
+    facultyId: 'fac-001',
+    facultyName: 'Dr. Hiteshkumar Agrawal',
+    subjectCode: 'ER20-11T',
+    subjectTitle: 'Pharmaceutics - Theory',
+    classId: 'FY_DPHARM',
+    componentType: 'THEORY',
+    weeklyHours: 3,
+  },
+  {
+    facultyId: 'fac-001',
+    facultyName: 'Dr. Hiteshkumar Agrawal',
+    subjectCode: 'ER20-11P',
+    subjectTitle: 'Pharmaceutics - Practical',
+    classId: 'FY_DPHARM',
+    batchId: 'FY_BATCH_A1',
+    componentType: 'PRACTICAL',
+    weeklyHours: 3,
+  },
+  {
+    facultyId: 'fac-002',
+    facultyName: 'Prof. Snehal Deshmukh',
+    subjectCode: 'ER20-21T',
+    subjectTitle: 'Pharmacology - Theory',
+    classId: 'SY_DPHARM',
+    componentType: 'THEORY',
+    weeklyHours: 3,
+  },
+];
 
 export default function App() {
   const [activeRole, setActiveRole] = useState<UserRole>('FACULTY');
@@ -429,7 +489,7 @@ export default function App() {
   const defaultersCount = students.filter((s) => s.isDefaulter).length;
   const lowAttainmentCount = coAttainment.filter((c) => !c.isAttained && c.studentsAttempted > 0).length;
 
-  const currentSelectedCohort = INITIAL_COHORTS.find((c) => c.id === selectedCohortId);
+  const currentSelectedCohort = LOCAL_COHORTS.find((c) => c.id === selectedCohortId);
 
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans">
@@ -493,8 +553,8 @@ export default function App() {
 
             <div className="mt-3">
               <CohortSelector
-                cohorts={INITIAL_COHORTS}
-                workloads={INITIAL_WORKLOADS}
+                cohorts={LOCAL_COHORTS}
+                workloads={LOCAL_WORKLOADS}
                 selectedClassId={selectedCohortId}
                 selectedSubjectCode={selectedSubjectCode}
                 selectedBatchId={selectedBatchId}
