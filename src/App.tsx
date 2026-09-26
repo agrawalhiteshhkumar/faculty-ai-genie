@@ -20,13 +20,17 @@ import { DailyDiaryModal } from './components/DailyDiaryModal';
 import { SearchAssistantModal } from './components/SearchAssistantModal';
 import { CriticalSuccessTestModal } from './components/CriticalSuccessTestModal';
 
-// Statutory Modules
+// Statutory Modules (Phases 1-5)
 import CohortSelector from './components/common/CohortSelector';
 import TeachingDiaryView from './components/common/TeachingDiaryView';
 import PracticalAssessmentView from './components/common/PracticalAssessmentView';
 import SessionalMarksheetView from './components/common/SessionalMarksheetView';
 import COAttainmentRemedialTracker from './components/common/COAttainmentRemedialTracker';
 import ConsolidatedCourseFileModal from './components/common/ConsolidatedCourseFileModal';
+
+// Phase 6 & Phase 7 Statutory Additions
+import RosterWorkloadManager from './components/admin/RosterWorkloadManager';
+import StatutoryInspectionDashboard from './components/common/StatutoryInspectionDashboard';
 
 import { AcademicClassCohort, FacultyWorkloadAllocation } from './cohortTypes';
 
@@ -127,7 +131,7 @@ const DEFAULT_SAMPLE_FACULTY: FacultyMaster[] = [
     employmentType: 'FULL_TIME',
     prescribedWeeklyHours: 16,
     conductedWeeklyHours: 14,
-    assignedSubjects: [{ subjectId: 'sub-1', subjectTitle: 'Pharmaceutics', division: 'Div A' }]
+    assignedSubjects: [{ subjectId: 'sub-1', subjectTitle: 'Pharmaceutics', division: 'Div A' }],
   },
   {
     id: 'fac-002',
@@ -138,8 +142,8 @@ const DEFAULT_SAMPLE_FACULTY: FacultyMaster[] = [
     employmentType: 'FULL_TIME',
     prescribedWeeklyHours: 18,
     conductedWeeklyHours: 16,
-    assignedSubjects: [{ subjectId: 'sub-2', subjectTitle: 'Pharmacology', division: 'Div A' }]
-  }
+    assignedSubjects: [{ subjectId: 'sub-2', subjectTitle: 'Pharmacology', division: 'Div A' }],
+  },
 ];
 
 const DEFAULT_SAMPLE_STUDENTS: StudentMaster[] = Array.from({ length: 24 }).map((_, i) => ({
@@ -151,7 +155,7 @@ const DEFAULT_SAMPLE_STUDENTS: StudentMaster[] = Array.from({ length: 24 }).map(
   attendancePercentage: 85 + (i % 12),
   isDefaulter: false,
   totalClasses: 40,
-  attendedClasses: 35
+  attendedClasses: 35,
 }));
 
 const DEFAULT_SAMPLE_SUBJECT: SubjectMaster = {
@@ -163,8 +167,8 @@ const DEFAULT_SAMPLE_SUBJECT: SubjectMaster = {
   curriculumScheme: 'PCI ER-2020 / MSBTE J-Scheme',
   courseOutcomes: [
     { id: 'co-1', code: 'CO1', statement: 'Understand fundamentals of dosage form design', bloomLevel: 'Understand' },
-    { id: 'co-2', code: 'CO2', statement: 'Evaluate formulation parameters of tablets and capsules', bloomLevel: 'Evaluate' }
-  ]
+    { id: 'co-2', code: 'CO2', statement: 'Evaluate formulation parameters of tablets and capsules', bloomLevel: 'Evaluate' },
+  ],
 };
 
 const DEFAULT_SAMPLE_TIMETABLE: TimetableSlot[] = [
@@ -177,7 +181,7 @@ const DEFAULT_SAMPLE_TIMETABLE: TimetableSlot[] = [
     facultyId: 'fac-001',
     roomNumber: 'LH-1',
     batchName: 'All',
-    status: { attendanceMarked: false }
+    status: { attendanceMarked: false },
   },
   {
     id: 'slot-2',
@@ -188,8 +192,8 @@ const DEFAULT_SAMPLE_TIMETABLE: TimetableSlot[] = [
     facultyId: 'fac-001',
     roomNumber: 'LH-1',
     batchName: 'All',
-    status: { attendanceMarked: false }
-  }
+    status: { attendanceMarked: false },
+  },
 ];
 
 export default function App() {
@@ -197,14 +201,15 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<NavTab>('HOME');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Statutory Module State
+  // Statutory Module State (Phases 1-7)
   const [activeStatutoryTab, setActiveStatutoryTab] = useState<
-    'OVERVIEW' | 'PH4_DIARY' | 'PH5_PRACTICAL' | 'SESSIONAL_CIA' | 'CO_BLOOMS'
+    'OVERVIEW' | 'PH4_DIARY' | 'PH5_PRACTICAL' | 'SESSIONAL_CIA' | 'CO_BLOOMS' | 'WORKLOAD_ROSTER' | 'INSPECTION_AUDIT'
   >('OVERVIEW');
   const [selectedCohortId, setSelectedCohortId] = useState<string>('FY_DPHARM');
   const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('ER20-11T');
   const [selectedBatchId, setSelectedBatchId] = useState<string>('FY_BATCH_A1');
   const [isDossierModalOpen, setIsDossierModalOpen] = useState(false);
+  const [workloads, setWorkloads] = useState<FacultyWorkloadAllocation[]>(LOCAL_WORKLOADS);
 
   // Multi-Tenant Session State
   const [tenantId, setTenantId] = useState<string | null>(() => {
@@ -220,25 +225,27 @@ export default function App() {
   const [isSuperAdminLoginModalOpen, setIsSuperAdminLoginModalOpen] = useState(false);
   const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
 
-  // Core Institutional State with safe fallbacks
+  // Core Institutional State
   const [institution, setInstitution] = useState<InstitutionProfile | null>(() => {
     try {
       const saved = localStorage.getItem('faculty_genie_institution');
-      return saved ? JSON.parse(saved) : {
-        id: 'inst-dpkcop',
-        name: 'D. P. Kharde Navjeevan College of Pharmacy, Sinnar',
-        shortName: 'DPKCOP',
-        departmentName: 'Diploma in Pharmacy',
-        aisheCode: 'S-22693',
-        dteCode: '5539',
-        msbteCode: '62386',
-        pciCode: '9178',
-        affiliatedBoard: 'Maharashtra State Board of Technical Education (MSBTE)',
-        logoUrl: '',
-        academicYear: '2026-2027',
-        currentTerm: 'S. Y. D. Pharm (Final)',
-        curriculumScheme: 'MSBTE J-Scheme / PCI ER-2020',
-      };
+      return saved
+        ? JSON.parse(saved)
+        : {
+            id: 'inst-dpkcop',
+            name: 'D. P. Kharde Navjeevan College of Pharmacy, Sinnar',
+            shortName: 'DPKCOP',
+            departmentName: 'Diploma in Pharmacy',
+            aisheCode: 'S-22693',
+            dteCode: '5539',
+            msbteCode: '62386',
+            pciCode: '9178',
+            affiliatedBoard: 'Maharashtra State Board of Technical Education (MSBTE)',
+            logoUrl: '',
+            academicYear: '2026-2027',
+            currentTerm: 'S. Y. D. Pharm (Final)',
+            curriculumScheme: 'MSBTE J-Scheme / PCI ER-2020',
+          };
     } catch {
       return null;
     }
@@ -311,8 +318,8 @@ export default function App() {
       const res = await fetch('/api/bootstrap', {
         headers: {
           'x-tenant-id': tenantId || '',
-          'x-license-key': licenseKey || ''
-        }
+          'x-license-key': licenseKey || '',
+        },
       });
       if (res.ok) {
         const data = await res.json();
@@ -386,7 +393,6 @@ export default function App() {
     localStorage.setItem('faculty_genie_institution', JSON.stringify(profile));
     setInstitution(profile);
 
-    // Guarantee that sub-structures are never undefined
     if (!students || students.length === 0) {
       localStorage.setItem('faculty_genie_students', JSON.stringify(DEFAULT_SAMPLE_STUDENTS));
       setStudents(DEFAULT_SAMPLE_STUDENTS);
@@ -599,7 +605,7 @@ export default function App() {
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-x-hidden space-y-6">
-          {/* MSBTE / PCI Statutory Controls Bar */}
+          {/* Statutory Command Bar */}
           <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 shadow-lg text-white">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
@@ -619,7 +625,7 @@ export default function App() {
             <div className="mt-3">
               <CohortSelector
                 cohorts={LOCAL_COHORTS}
-                workloads={LOCAL_WORKLOADS}
+                workloads={workloads}
                 selectedClassId={selectedCohortId}
                 selectedSubjectCode={selectedSubjectCode}
                 selectedBatchId={selectedBatchId}
@@ -629,7 +635,7 @@ export default function App() {
               />
             </div>
 
-            {/* Sub-Tabs for Phases 2-4 */}
+            {/* Sub-Tabs for Phases 1-7 */}
             <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-slate-800/80">
               <button
                 onClick={() => setActiveStatutoryTab('OVERVIEW')}
@@ -681,10 +687,50 @@ export default function App() {
               >
                 CO Attainment &amp; Remedial
               </button>
+              <button
+                onClick={() => setActiveStatutoryTab('WORKLOAD_ROSTER')}
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                  activeStatutoryTab === 'WORKLOAD_ROSTER'
+                    ? 'bg-cyan-600 text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                }`}
+              >
+                Workload &amp; Roster (PH-6)
+              </button>
+              <button
+                onClick={() => setActiveStatutoryTab('INSPECTION_AUDIT')}
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                  activeStatutoryTab === 'INSPECTION_AUDIT'
+                    ? 'bg-teal-600 text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                }`}
+              >
+                Inspection &amp; SIF (PH-7)
+              </button>
             </div>
           </div>
 
-          {/* Active Statutory Module Display */}
+          {/* Phase 6 & 7 Module Displays */}
+          {activeStatutoryTab === 'WORKLOAD_ROSTER' && (
+            <RosterWorkloadManager
+              cohorts={LOCAL_COHORTS}
+              facultyList={safeFacultyList}
+              workloads={workloads}
+              onUpdateWorkloads={setWorkloads}
+            />
+          )}
+
+          {activeStatutoryTab === 'INSPECTION_AUDIT' && (
+            <StatutoryInspectionDashboard
+              institution={institution}
+              cohorts={LOCAL_COHORTS}
+              facultyList={safeFacultyList}
+              workloads={workloads}
+              students={safeStudents}
+            />
+          )}
+
+          {/* Phases 2-5 Displays */}
           {activeStatutoryTab === 'PH4_DIARY' && (
             <TeachingDiaryView
               classId={selectedCohortId}
