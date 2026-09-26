@@ -1,1 +1,112 @@
+import {
+  AcademicClassCohort,
+  PracticalBatchDivision,
+  FacultyWorkloadAllocation,
+} from '../cohortTypes';
 
+export const INITIAL_CLASSES: AcademicClassCohort[] = [
+  {
+    id: 'FY_DPHARM',
+    name: 'First Year D. Pharm',
+    code: 'FY-D.PHARM',
+    program: 'D_PHARM',
+    academicYear: '2026-2027',
+    termPattern: 'ANNUAL',
+    intakeCapacity: 60,
+  },
+  {
+    id: 'SY_DPHARM',
+    name: 'Second Year D. Pharm',
+    code: 'SY-D.PHARM',
+    program: 'D_PHARM',
+    academicYear: '2026-2027',
+    termPattern: 'ANNUAL',
+    intakeCapacity: 60,
+  },
+];
+
+export const INITIAL_BATCHES: PracticalBatchDivision[] = [
+  {
+    id: 'FY_BATCH_A1',
+    classId: 'FY_DPHARM',
+    batchName: 'Batch A1',
+    rollNumberRange: 'Roll 01 to 30',
+    assignedLabTeacherId: 'FAC_01',
+    assignedLabTeacherName: 'Dr. Hiteshkumar Agrawal',
+  },
+  {
+    id: 'FY_BATCH_A2',
+    classId: 'FY_DPHARM',
+    batchName: 'Batch A2',
+    rollNumberRange: 'Roll 31 to 60',
+    assignedLabTeacherId: 'FAC_02',
+    assignedLabTeacherName: 'Prof. S. R. Bhalerao',
+  },
+  {
+    id: 'SY_BATCH_B1',
+    classId: 'SY_DPHARM',
+    batchName: 'Batch B1',
+    rollNumberRange: 'Roll 01 to 30',
+    assignedLabTeacherId: 'FAC_01',
+    assignedLabTeacherName: 'Dr. Hiteshkumar Agrawal',
+  },
+  {
+    id: 'SY_BATCH_B2',
+    classId: 'SY_DPHARM',
+    batchName: 'Batch B2',
+    rollNumberRange: 'Roll 31 to 60',
+    assignedLabTeacherId: 'FAC_03',
+    assignedLabTeacherName: 'Prof. V. K. Deshmukh',
+  },
+];
+
+export const INITIAL_WORKLOAD_ALLOCATIONS: FacultyWorkloadAllocation[] = [
+  {
+    id: 'ALLOC_01',
+    facultyId: 'FAC_01',
+    facultyName: 'Dr. Hiteshkumar Agrawal',
+    designation: 'Principal & Professor',
+    classId: 'FY_DPHARM',
+    subjectCode: 'ER20-11T',
+    subjectTitle: 'Pharmaceutics',
+    weeklyTheoryHours: 3,
+    weeklyPracticalHours: 6,
+    totalWorkloadQuota: 16,
+  },
+  {
+    id: 'ALLOC_02',
+    facultyId: 'FAC_02',
+    facultyName: 'Prof. S. R. Bhalerao',
+    designation: 'Associate Professor',
+    classId: 'FY_DPHARM',
+    subjectCode: 'ER20-12T',
+    subjectTitle: 'Pharmaceutical Chemistry',
+    weeklyTheoryHours: 3,
+    weeklyPracticalHours: 6,
+    totalWorkloadQuota: 18,
+  },
+  {
+    id: 'ALLOC_03',
+    facultyId: 'FAC_01',
+    facultyName: 'Dr. Hiteshkumar Agrawal',
+    designation: 'Principal & Professor',
+    classId: 'SY_DPHARM',
+    subjectCode: 'ER20-21T',
+    subjectTitle: 'Pharmacology',
+    weeklyTheoryHours: 3,
+    weeklyPracticalHours: 4,
+    totalWorkloadQuota: 16,
+  },
+  {
+    id: 'ALLOC_04',
+    facultyId: 'FAC_03',
+    facultyName: 'Prof. V. K. Deshmukh',
+    designation: 'Assistant Professor',
+    classId: 'SY_DPHARM',
+    subjectCode: 'ER20-22T',
+    subjectTitle: 'Community Pharmacy & Management',
+    weeklyTheoryHours: 3,
+    weeklyPracticalHours: 6,
+    totalWorkloadQuota: 20,
+  },
+];
