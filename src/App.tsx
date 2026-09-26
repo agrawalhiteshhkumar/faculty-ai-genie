@@ -59,7 +59,6 @@ import {
   AuditLogEntry,
 } from './types';
 
-// Self-contained cohort definitions to guarantee zero import-export mismatch
 const LOCAL_COHORTS: AcademicClassCohort[] = [
   {
     id: 'FY_DPHARM',
@@ -146,28 +145,57 @@ export default function App() {
   const [isSuperAdminLoginModalOpen, setIsSuperAdminLoginModalOpen] = useState(false);
   const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
 
-  // Core Institutional State
+  // Core Institutional State with safe defaults
   const [institution, setInstitution] = useState<InstitutionProfile | null>(() => {
-    const saved = localStorage.getItem('faculty_genie_institution');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('faculty_genie_institution');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
   });
+
   const [subject, setSubject] = useState<SubjectMaster | null>(() => {
-    const saved = localStorage.getItem('faculty_genie_subject');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('faculty_genie_subject');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
   });
+
   const [facultyList, setFacultyList] = useState<FacultyMaster[]>(() => {
-    const saved = localStorage.getItem('faculty_genie_faculty');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('faculty_genie_faculty');
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   });
+
   const [selectedFacultyId, setSelectedFacultyId] = useState<string>('fac-001');
+
   const [students, setStudents] = useState<StudentMaster[]>(() => {
-    const saved = localStorage.getItem('faculty_genie_students');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('faculty_genie_students');
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   });
+
   const [timetable, setTimetable] = useState<TimetableSlot[]>(() => {
-    const saved = localStorage.getItem('faculty_genie_timetable');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('faculty_genie_timetable');
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   });
+
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [studentMarks, setStudentMarks] = useState<StudentQuestionMark[]>([]);
   const [coAttainment, setCoAttainment] = useState<COAttainmentSummary[]>([]);
@@ -193,17 +221,29 @@ export default function App() {
   };
 
   const fetchBootstrapData = useCallback(async () => {
-    const localInst = localStorage.getItem('faculty_genie_institution');
-    if (localInst) {
-      setInstitution(JSON.parse(localInst));
-    }
-    const localFaculty = localStorage.getItem('faculty_genie_faculty');
-    if (localFaculty) {
-      setFacultyList(JSON.parse(localFaculty));
-    }
-    const localStudents = localStorage.getItem('faculty_genie_students');
-    if (localStudents) {
-      setStudents(JSON.parse(localStudents));
+    try {
+      const localInst = localStorage.getItem('faculty_genie_institution');
+      if (localInst) setInstitution(JSON.parse(localInst));
+
+      const localFaculty = localStorage.getItem('faculty_genie_faculty');
+      if (localFaculty) {
+        const parsed = JSON.parse(localFaculty);
+        if (Array.isArray(parsed)) setFacultyList(parsed);
+      }
+
+      const localStudents = localStorage.getItem('faculty_genie_students');
+      if (localStudents) {
+        const parsed = JSON.parse(localStudents);
+        if (Array.isArray(parsed)) setStudents(parsed);
+      }
+
+      const localTimetable = localStorage.getItem('faculty_genie_timetable');
+      if (localTimetable) {
+        const parsed = JSON.parse(localTimetable);
+        if (Array.isArray(parsed)) setTimetable(parsed);
+      }
+    } catch {
+      // safe fallback
     }
 
     if (!tenantId && !licenseKey) return;
@@ -219,18 +259,18 @@ export default function App() {
         const data = await res.json();
         if (data.institution) setInstitution(data.institution);
         if (data.subject) setSubject(data.subject);
-        if (data.faculty?.length) setFacultyList(data.faculty);
-        if (data.students?.length) setStudents(data.students);
-        if (data.timetable?.length) setTimetable(data.timetable);
+        if (Array.isArray(data.faculty)) setFacultyList(data.faculty);
+        if (Array.isArray(data.students)) setStudents(data.students);
+        if (Array.isArray(data.timetable)) setTimetable(data.timetable);
         if (data.assessment) setAssessment(data.assessment);
-        if (data.studentMarks?.length) setStudentMarks(data.studentMarks);
-        if (data.coAttainment?.length) setCoAttainment(data.coAttainment);
+        if (Array.isArray(data.studentMarks)) setStudentMarks(data.studentMarks);
+        if (Array.isArray(data.coAttainment)) setCoAttainment(data.coAttainment);
         if (data.poAttainments) setPoAttainments(data.poAttainments);
-        if (data.programOutcomes?.length) setProgramOutcomes(data.programOutcomes);
-        if (data.actionTakenReports?.length) setActionTakenReports(data.actionTakenReports);
+        if (Array.isArray(data.programOutcomes)) setProgramOutcomes(data.programOutcomes);
+        if (Array.isArray(data.actionTakenReports)) setActionTakenReports(data.actionTakenReports);
       }
     } catch {
-      // Offline fallback
+      // preserve local storage
     }
   }, [tenantId, licenseKey]);
 
@@ -371,26 +411,42 @@ export default function App() {
       ]
     };
 
+    const sampleTimetable: TimetableSlot[] = [
+      {
+        id: 'slot-1',
+        dayOfWeek: 'Monday',
+        startTime: '10:00 AM',
+        endTime: '11:00 AM',
+        subjectId: 'sub-1',
+        facultyId: 'fac-001',
+        roomNumber: 'LH-1',
+        batchName: 'All',
+        status: { attendanceMarked: false }
+      }
+    ];
+
     localStorage.setItem('faculty_genie_institution', JSON.stringify(sampleProfile));
     localStorage.setItem('faculty_genie_faculty', JSON.stringify(sampleFaculty));
     localStorage.setItem('faculty_genie_students', JSON.stringify(sampleStudents));
     localStorage.setItem('faculty_genie_subject', JSON.stringify(sampleSubject));
+    localStorage.setItem('faculty_genie_timetable', JSON.stringify(sampleTimetable));
 
     setInstitution(sampleProfile);
     setFacultyList(sampleFaculty);
     setStudents(sampleStudents);
     setSubject(sampleSubject);
+    setTimetable(sampleTimetable);
     setCurrentTab('HOME');
   };
 
   const handleSaveAttendance = async (slotId: string, _absentIds: string[]) => {
     setTimetable((prev) =>
-      prev.map((s) => (s.id === slotId ? { ...s, status: { ...s.status, attendanceMarked: true } } : s))
+      (prev || []).map((s) => (s.id === slotId ? { ...s, status: { ...s.status, attendanceMarked: true } } : s))
     );
   };
 
   const handleSaveDiary = async (entryData: any) => {
-    setTeachingDiaryEntries((prev) => [entryData, ...prev]);
+    setTeachingDiaryEntries((prev) => [entryData, ...(prev || [])]);
   };
 
   const handleSaveMarks = async (marks: StudentQuestionMark[]) => {
@@ -421,9 +477,14 @@ export default function App() {
     );
   }
 
+  const safeFacultyList = Array.isArray(facultyList) ? facultyList : [];
+  const safeStudents = Array.isArray(students) ? students : [];
+  const safeTimetable = Array.isArray(timetable) ? timetable : [];
+  const safeCoAttainment = Array.isArray(coAttainment) ? coAttainment : [];
+
   const currentFaculty =
-    facultyList.find((f) => f.id === selectedFacultyId) ||
-    facultyList[0] || {
+    safeFacultyList.find((f) => f.id === selectedFacultyId) ||
+    safeFacultyList[0] || {
       id: 'fac-001',
       name: 'Dr. Hiteshkumar Agrawal',
       designation: 'Principal & Professor',
@@ -451,7 +512,7 @@ export default function App() {
           license={license}
           activeRole={activeRole}
           setActiveRole={setActiveRole}
-          facultyList={facultyList}
+          facultyList={safeFacultyList}
           currentFaculty={currentFaculty}
           onSelectFaculty={setSelectedFacultyId}
           onOpenSearch={() => setIsSearchModalOpen(true)}
@@ -468,8 +529,8 @@ export default function App() {
             onSaveInstitution={handleSaveInstitution}
             onResetDatabase={handleResetDatabase}
             onLoadSampleDataset={handleLoadSampleDataset}
-            studentCount={students.length}
-            facultyCount={facultyList.length}
+            studentCount={safeStudents.length}
+            facultyCount={safeFacultyList.length}
             hasSubject={!!subject}
             subjectTitle={subject?.title}
             onImportComplete={fetchBootstrapData}
@@ -485,9 +546,10 @@ export default function App() {
     );
   }
 
-  const pendingAttendanceCount = timetable.filter((s) => !s.status?.attendanceMarked).length;
-  const defaultersCount = students.filter((s) => s.isDefaulter).length;
-  const lowAttainmentCount = coAttainment.filter((c) => !c.isAttained && c.studentsAttempted > 0).length;
+  // Safe counts with fallback guards
+  const pendingAttendanceCount = safeTimetable.filter((s) => !s?.status?.attendanceMarked).length;
+  const defaultersCount = safeStudents.filter((s) => s?.isDefaulter).length;
+  const lowAttainmentCount = safeCoAttainment.filter((c) => !c?.isAttained && (c?.studentsAttempted || 0) > 0).length;
 
   const currentSelectedCohort = LOCAL_COHORTS.find((c) => c.id === selectedCohortId);
 
@@ -506,7 +568,7 @@ export default function App() {
         license={license}
         activeRole={activeRole}
         setActiveRole={setActiveRole}
-        facultyList={facultyList}
+        facultyList={safeFacultyList}
         currentFaculty={currentFaculty}
         onSelectFaculty={setSelectedFacultyId}
         onOpenSearch={() => setIsSearchModalOpen(true)}
@@ -666,9 +728,9 @@ export default function App() {
               {currentTab === 'HOME' && (
                 <HomeView
                   activeRole={activeRole}
-                  timetable={timetable}
-                  students={students}
-                  coAttainment={coAttainment}
+                  timetable={safeTimetable}
+                  students={safeStudents}
+                  coAttainment={safeCoAttainment}
                   onNavigateTab={(tab) => setCurrentTab(tab)}
                   onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
                   onOpenDailyDiary={(slot) => {
@@ -682,7 +744,7 @@ export default function App() {
               {currentTab === 'MY_WORK' && (
                 <MyWorkView
                   faculty={currentFaculty}
-                  timetable={timetable}
+                  timetable={safeTimetable}
                   teachingDiaryEntries={teachingDiaryEntries}
                   onOpenDailyDiary={(slot) => {
                     setActiveDiarySlot(slot);
@@ -696,7 +758,7 @@ export default function App() {
               {currentTab === 'TEACH' && (
                 <TeachView
                   subject={subject}
-                  students={students}
+                  students={safeStudents}
                   currentFaculty={currentFaculty}
                   institution={institution}
                   onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
@@ -714,7 +776,7 @@ export default function App() {
               {currentTab === 'ASSESS' && (
                 <AssessView
                   assessment={assessment}
-                  students={students}
+                  students={safeStudents}
                   studentMarks={studentMarks}
                   subject={subject}
                   activeRole={activeRole}
@@ -726,7 +788,7 @@ export default function App() {
 
               {currentTab === 'STUDENTS' && (
                 <StudentsView
-                  students={students}
+                  students={safeStudents}
                   institution={institution}
                   onNavigateTab={(tab) => setCurrentTab(tab)}
                 />
@@ -735,7 +797,7 @@ export default function App() {
               {currentTab === 'OUTCOMES' && (
                 <OutcomesView
                   subject={subject}
-                  coAttainment={coAttainment}
+                  coAttainment={safeCoAttainment}
                   poAttainments={poAttainments}
                   programOutcomes={programOutcomes}
                   actionTakenReports={actionTakenReports}
@@ -751,7 +813,7 @@ export default function App() {
                 <DocumentsView
                   institution={institution}
                   subject={subject}
-                  students={students}
+                  students={safeStudents}
                   auditLogs={auditLogs}
                   actionTakenReports={actionTakenReports}
                   onNavigateTab={(tab) => setCurrentTab(tab)}
@@ -762,7 +824,7 @@ export default function App() {
                 <QCIAccreditationView
                   institution={institution}
                   subject={subject}
-                  students={students}
+                  students={safeStudents}
                   actionTakenReports={actionTakenReports}
                 />
               )}
@@ -789,8 +851,8 @@ export default function App() {
       <QuickAttendanceModal
         isOpen={isAttendanceModalOpen}
         onClose={() => setIsAttendanceModalOpen(false)}
-        slots={timetable}
-        students={students}
+        slots={safeTimetable}
+        students={safeStudents}
         onSaveAttendance={handleSaveAttendance}
       />
 
