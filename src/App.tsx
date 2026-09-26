@@ -20,15 +20,13 @@ import { DailyDiaryModal } from './components/DailyDiaryModal';
 import { SearchAssistantModal } from './components/SearchAssistantModal';
 import { CriticalSuccessTestModal } from './components/CriticalSuccessTestModal';
 
-// Statutory Modules (Phases 1-5)
+// Statutory Modules (Phases 1-7)
 import CohortSelector from './components/common/CohortSelector';
 import TeachingDiaryView from './components/common/TeachingDiaryView';
 import PracticalAssessmentView from './components/common/PracticalAssessmentView';
 import SessionalMarksheetView from './components/common/SessionalMarksheetView';
 import COAttainmentRemedialTracker from './components/common/COAttainmentRemedialTracker';
 import ConsolidatedCourseFileModal from './components/common/ConsolidatedCourseFileModal';
-
-// Phase 6 & Phase 7 Statutory Additions
 import RosterWorkloadManager from './components/admin/RosterWorkloadManager';
 import StatutoryInspectionDashboard from './components/common/StatutoryInspectionDashboard';
 
@@ -63,7 +61,8 @@ import {
   AuditLogEntry,
 } from './types';
 
-const LOCAL_COHORTS: AcademicClassCohort[] = [
+// Curricular Schemas (PCI ER-2020 Statutory Structure)
+const DEFAULT_COHORTS: AcademicClassCohort[] = [
   {
     id: 'FY_DPHARM',
     name: 'First Year D. Pharmacy',
@@ -90,7 +89,8 @@ const LOCAL_COHORTS: AcademicClassCohort[] = [
   },
 ];
 
-const LOCAL_WORKLOADS: FacultyWorkloadAllocation[] = [
+// Clean Institutional Default Workload
+const DEFAULT_WORKLOADS: FacultyWorkloadAllocation[] = [
   {
     facultyId: 'fac-001',
     facultyName: 'Dr. Hiteshkumar Agrawal',
@@ -110,53 +110,7 @@ const LOCAL_WORKLOADS: FacultyWorkloadAllocation[] = [
     componentType: 'PRACTICAL',
     weeklyHours: 3,
   },
-  {
-    facultyId: 'fac-002',
-    facultyName: 'Prof. Snehal Deshmukh',
-    subjectCode: 'ER20-21T',
-    subjectTitle: 'Pharmacology - Theory',
-    classId: 'SY_DPHARM',
-    componentType: 'THEORY',
-    weeklyHours: 3,
-  },
 ];
-
-const DEFAULT_SAMPLE_FACULTY: FacultyMaster[] = [
-  {
-    id: 'fac-001',
-    name: 'Dr. Hiteshkumar Agrawal',
-    designation: 'Principal & Professor',
-    department: 'Pharmacy',
-    role: 'HOD',
-    employmentType: 'FULL_TIME',
-    prescribedWeeklyHours: 16,
-    conductedWeeklyHours: 14,
-    assignedSubjects: [{ subjectId: 'sub-1', subjectTitle: 'Pharmaceutics', division: 'Div A' }],
-  },
-  {
-    id: 'fac-002',
-    name: 'Prof. Snehal Deshmukh',
-    designation: 'Lecturer',
-    department: 'Pharmacy',
-    role: 'FACULTY',
-    employmentType: 'FULL_TIME',
-    prescribedWeeklyHours: 18,
-    conductedWeeklyHours: 16,
-    assignedSubjects: [{ subjectId: 'sub-2', subjectTitle: 'Pharmacology', division: 'Div A' }],
-  },
-];
-
-const DEFAULT_SAMPLE_STUDENTS: StudentMaster[] = Array.from({ length: 24 }).map((_, i) => ({
-  id: `stu-${i + 1}`,
-  enrollmentNumber: `2206238600${i + 1}`,
-  rollNumber: `${i + 1}`,
-  name: `Pharmacy Scholar ${i + 1}`,
-  batch: i < 12 ? 'Batch A' : 'Batch B',
-  attendancePercentage: 85 + (i % 12),
-  isDefaulter: false,
-  totalClasses: 40,
-  attendedClasses: 35,
-}));
 
 const DEFAULT_SAMPLE_SUBJECT: SubjectMaster = {
   id: 'sub-1',
@@ -171,31 +125,6 @@ const DEFAULT_SAMPLE_SUBJECT: SubjectMaster = {
   ],
 };
 
-const DEFAULT_SAMPLE_TIMETABLE: TimetableSlot[] = [
-  {
-    id: 'slot-1',
-    dayOfWeek: 'Monday',
-    startTime: '10:00 AM',
-    endTime: '11:00 AM',
-    subjectId: 'sub-1',
-    facultyId: 'fac-001',
-    roomNumber: 'LH-1',
-    batchName: 'All',
-    status: { attendanceMarked: false },
-  },
-  {
-    id: 'slot-2',
-    dayOfWeek: 'Tuesday',
-    startTime: '11:00 AM',
-    endTime: '12:00 PM',
-    subjectId: 'sub-1',
-    facultyId: 'fac-001',
-    roomNumber: 'LH-1',
-    batchName: 'All',
-    status: { attendanceMarked: false },
-  },
-];
-
 export default function App() {
   const [activeRole, setActiveRole] = useState<UserRole>('FACULTY');
   const [currentTab, setCurrentTab] = useState<NavTab>('HOME');
@@ -209,14 +138,21 @@ export default function App() {
   const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('ER20-11T');
   const [selectedBatchId, setSelectedBatchId] = useState<string>('FY_BATCH_A1');
   const [isDossierModalOpen, setIsDossierModalOpen] = useState(false);
-  const [workloads, setWorkloads] = useState<FacultyWorkloadAllocation[]>(LOCAL_WORKLOADS);
+  const [workloads, setWorkloads] = useState<FacultyWorkloadAllocation[]>(() => {
+    try {
+      const saved = localStorage.getItem('faculty_genie_workloads');
+      return saved ? JSON.parse(saved) : DEFAULT_WORKLOADS;
+    } catch {
+      return DEFAULT_WORKLOADS;
+    }
+  });
 
   // Multi-Tenant Session State
   const [tenantId, setTenantId] = useState<string | null>(() => {
-    return localStorage.getItem('faculty_genie_tenant_id') || 'tenant_dpkcop';
+    return localStorage.getItem('faculty_genie_tenant_id');
   });
   const [licenseKey, setLicenseKey] = useState<string | null>(() => {
-    return localStorage.getItem('faculty_genie_license_key') || 'GENIE-INST-2026-ACTIVE';
+    return localStorage.getItem('faculty_genie_license_key');
   });
   const [license, setLicense] = useState<InstitutionalLicense | null>(null);
 
@@ -225,27 +161,11 @@ export default function App() {
   const [isSuperAdminLoginModalOpen, setIsSuperAdminLoginModalOpen] = useState(false);
   const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
 
-  // Core Institutional State
+  // Institution Profile (Loaded from Storage or Blank Slate)
   const [institution, setInstitution] = useState<InstitutionProfile | null>(() => {
     try {
       const saved = localStorage.getItem('faculty_genie_institution');
-      return saved
-        ? JSON.parse(saved)
-        : {
-            id: 'inst-dpkcop',
-            name: 'D. P. Kharde Navjeevan College of Pharmacy, Sinnar',
-            shortName: 'DPKCOP',
-            departmentName: 'Diploma in Pharmacy',
-            aisheCode: 'S-22693',
-            dteCode: '5539',
-            msbteCode: '62386',
-            pciCode: '9178',
-            affiliatedBoard: 'Maharashtra State Board of Technical Education (MSBTE)',
-            logoUrl: '',
-            academicYear: '2026-2027',
-            currentTerm: 'S. Y. D. Pharm (Final)',
-            curriculumScheme: 'MSBTE J-Scheme / PCI ER-2020',
-          };
+      return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
     }
@@ -260,41 +180,55 @@ export default function App() {
     }
   });
 
+  // Clean Slate Roster (Starts Empty unless Saved)
   const [facultyList, setFacultyList] = useState<FacultyMaster[]>(() => {
     try {
       const saved = localStorage.getItem('faculty_genie_faculty');
-      const parsed = saved ? JSON.parse(saved) : DEFAULT_SAMPLE_FACULTY;
-      return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_SAMPLE_FACULTY;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return DEFAULT_SAMPLE_FACULTY;
+      return [];
     }
   });
 
-  const [selectedFacultyId, setSelectedFacultyId] = useState<string>('fac-001');
+  const [selectedFacultyId, setSelectedFacultyId] = useState<string>('');
 
   const [students, setStudents] = useState<StudentMaster[]>(() => {
     try {
       const saved = localStorage.getItem('faculty_genie_students');
-      const parsed = saved ? JSON.parse(saved) : DEFAULT_SAMPLE_STUDENTS;
-      return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_SAMPLE_STUDENTS;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return DEFAULT_SAMPLE_STUDENTS;
+      return [];
     }
   });
 
   const [timetable, setTimetable] = useState<TimetableSlot[]>(() => {
     try {
       const saved = localStorage.getItem('faculty_genie_timetable');
-      const parsed = saved ? JSON.parse(saved) : DEFAULT_SAMPLE_TIMETABLE;
-      return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_SAMPLE_TIMETABLE;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return DEFAULT_SAMPLE_TIMETABLE;
+      return [];
     }
   });
 
   const [assessment, setAssessment] = useState<Assessment | null>(null);
-  const [studentMarks, setStudentMarks] = useState<StudentQuestionMark[]>([]);
-  const [coAttainment, setCoAttainment] = useState<COAttainmentSummary[]>([]);
+  const [studentMarks, setStudentMarks] = useState<StudentQuestionMark[]>(() => {
+    try {
+      const saved = localStorage.getItem('faculty_genie_student_marks');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [coAttainment, setCoAttainment] = useState<COAttainmentSummary[]>(() => {
+    try {
+      const saved = localStorage.getItem('faculty_genie_co_attainment');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [poAttainments, setPoAttainments] = useState<Record<string, number>>({});
   const [programOutcomes, setProgramOutcomes] = useState<ProgramOutcome[]>([]);
   const [actionTakenReports, setActionTakenReports] = useState<ActionTakenReport[]>([]);
@@ -325,9 +259,9 @@ export default function App() {
         const data = await res.json();
         if (data.institution) setInstitution(data.institution);
         if (data.subject) setSubject(data.subject);
-        if (Array.isArray(data.faculty) && data.faculty.length) setFacultyList(data.faculty);
-        if (Array.isArray(data.students) && data.students.length) setStudents(data.students);
-        if (Array.isArray(data.timetable) && data.timetable.length) setTimetable(data.timetable);
+        if (Array.isArray(data.faculty)) setFacultyList(data.faculty);
+        if (Array.isArray(data.students)) setStudents(data.students);
+        if (Array.isArray(data.timetable)) setTimetable(data.timetable);
         if (data.assessment) setAssessment(data.assessment);
         if (Array.isArray(data.studentMarks)) setStudentMarks(data.studentMarks);
         if (Array.isArray(data.coAttainment)) setCoAttainment(data.coAttainment);
@@ -348,8 +282,8 @@ export default function App() {
     newTenantId?: string,
     newLicense?: InstitutionalLicense
   ) => {
-    const tid = newTenantId || 'tenant_dpkcop';
-    const key = newLicense?.key || 'GENIE-INST-2026-ACTIVE';
+    const tid = newTenantId || 'tenant_custom';
+    const key = newLicense?.key || 'GENIE-CUSTOM-ACTIVE';
 
     localStorage.setItem('faculty_genie_tenant_id', tid);
     localStorage.setItem('faculty_genie_license_key', key);
@@ -360,14 +294,24 @@ export default function App() {
   };
 
   const handleExitWorkspace = () => {
-    if (window.confirm('Do you want to exit this institutional workspace?')) {
+    if (window.confirm('Do you want to log out and exit this institutional workspace?')) {
       localStorage.removeItem('faculty_genie_tenant_id');
       localStorage.removeItem('faculty_genie_license_key');
       localStorage.removeItem('faculty_genie_institution');
+      localStorage.removeItem('faculty_genie_students');
+      localStorage.removeItem('faculty_genie_faculty');
+      localStorage.removeItem('faculty_genie_timetable');
+      localStorage.removeItem('faculty_genie_student_marks');
+      localStorage.removeItem('faculty_genie_co_attainment');
       setTenantId(null);
       setLicenseKey(null);
       setLicense(null);
       setInstitution(null);
+      setStudents([]);
+      setFacultyList([]);
+      setTimetable([]);
+      setStudentMarks([]);
+      setCoAttainment([]);
       setIsSuperAdminViewOpen(false);
       setIsSuperAdminUser(false);
       setCurrentTab('HOME');
@@ -392,41 +336,29 @@ export default function App() {
   const handleSaveInstitution = async (profile: InstitutionProfile) => {
     localStorage.setItem('faculty_genie_institution', JSON.stringify(profile));
     setInstitution(profile);
-
-    if (!students || students.length === 0) {
-      localStorage.setItem('faculty_genie_students', JSON.stringify(DEFAULT_SAMPLE_STUDENTS));
-      setStudents(DEFAULT_SAMPLE_STUDENTS);
-    }
-    if (!facultyList || facultyList.length === 0) {
-      localStorage.setItem('faculty_genie_faculty', JSON.stringify(DEFAULT_SAMPLE_FACULTY));
-      setFacultyList(DEFAULT_SAMPLE_FACULTY);
-    }
-    if (!timetable || timetable.length === 0) {
-      localStorage.setItem('faculty_genie_timetable', JSON.stringify(DEFAULT_SAMPLE_TIMETABLE));
-      setTimetable(DEFAULT_SAMPLE_TIMETABLE);
-    }
-    if (!subject) {
-      localStorage.setItem('faculty_genie_subject', JSON.stringify(DEFAULT_SAMPLE_SUBJECT));
-      setSubject(DEFAULT_SAMPLE_SUBJECT);
-    }
     setCurrentTab('HOME');
   };
 
   const handleResetDatabase = async () => {
-    if (window.confirm('Clear all local data and reset institution setup?')) {
+    if (window.confirm('Clear all institutional records and return to a blank pristine slate?')) {
       localStorage.removeItem('faculty_genie_institution');
       localStorage.removeItem('faculty_genie_faculty');
       localStorage.removeItem('faculty_genie_students');
       localStorage.removeItem('faculty_genie_timetable');
+      localStorage.removeItem('faculty_genie_student_marks');
+      localStorage.removeItem('faculty_genie_co_attainment');
       setInstitution(null);
-      setSubject(null);
+      setSubject(DEFAULT_SAMPLE_SUBJECT);
       setFacultyList([]);
       setStudents([]);
       setTimetable([]);
+      setStudentMarks([]);
+      setCoAttainment([]);
       setCurrentTab('SETUP');
     }
   };
 
+  // Optional Demo Dataset Loader (Useful for inspection drills / faculty training)
   const handleLoadSampleDataset = async () => {
     const sampleProfile: InstitutionProfile = {
       id: 'inst-dpkcop',
@@ -444,17 +376,52 @@ export default function App() {
       curriculumScheme: 'MSBTE J-Scheme / PCI ER-2020',
     };
 
+    const sampleFaculty: FacultyMaster[] = [
+      {
+        id: 'fac-001',
+        name: 'Dr. Hiteshkumar Agrawal',
+        designation: 'Principal & Professor',
+        department: 'Pharmacy',
+        role: 'HOD',
+        employmentType: 'FULL_TIME',
+        prescribedWeeklyHours: 16,
+        conductedWeeklyHours: 14,
+        assignedSubjects: [{ subjectId: 'sub-1', subjectTitle: 'Pharmaceutics', division: 'Div A' }],
+      },
+      {
+        id: 'fac-002',
+        name: 'Prof. Snehal Deshmukh',
+        designation: 'Lecturer',
+        department: 'Pharmacy',
+        role: 'FACULTY',
+        employmentType: 'FULL_TIME',
+        prescribedWeeklyHours: 18,
+        conductedWeeklyHours: 16,
+        assignedSubjects: [{ subjectId: 'sub-2', subjectTitle: 'Pharmacology', division: 'Div A' }],
+      },
+    ];
+
+    const sampleStudents: StudentMaster[] = Array.from({ length: 60 }).map((_, i) => ({
+      id: `stu-${i + 1}`,
+      enrollmentNumber: `2206238600${i + 1 < 10 ? '0' + (i + 1) : i + 1}`,
+      rollNumber: `${i + 1}`,
+      name: `Scholar ${i + 1}`,
+      batch: i < 20 ? 'Batch A1' : i < 40 ? 'Batch A2' : 'Batch A3',
+      attendancePercentage: 85 + (i % 12),
+      isDefaulter: false,
+      totalClasses: 40,
+      attendedClasses: 35,
+    }));
+
     localStorage.setItem('faculty_genie_institution', JSON.stringify(sampleProfile));
-    localStorage.setItem('faculty_genie_faculty', JSON.stringify(DEFAULT_SAMPLE_FACULTY));
-    localStorage.setItem('faculty_genie_students', JSON.stringify(DEFAULT_SAMPLE_STUDENTS));
+    localStorage.setItem('faculty_genie_faculty', JSON.stringify(sampleFaculty));
+    localStorage.setItem('faculty_genie_students', JSON.stringify(sampleStudents));
     localStorage.setItem('faculty_genie_subject', JSON.stringify(DEFAULT_SAMPLE_SUBJECT));
-    localStorage.setItem('faculty_genie_timetable', JSON.stringify(DEFAULT_SAMPLE_TIMETABLE));
 
     setInstitution(sampleProfile);
-    setFacultyList(DEFAULT_SAMPLE_FACULTY);
-    setStudents(DEFAULT_SAMPLE_STUDENTS);
+    setFacultyList(sampleFaculty);
+    setStudents(sampleStudents);
     setSubject(DEFAULT_SAMPLE_SUBJECT);
-    setTimetable(DEFAULT_SAMPLE_TIMETABLE);
     setCurrentTab('HOME');
   };
 
@@ -470,12 +437,14 @@ export default function App() {
 
   const handleSaveMarks = async (marks: StudentQuestionMark[]) => {
     setStudentMarks(marks);
+    localStorage.setItem('faculty_genie_student_marks', JSON.stringify(marks));
   };
 
   if (isSuperAdminViewOpen) {
     return <SuperAdminDashboard onExit={handleExitSuperAdmin} />;
   }
 
+  // Gateway Gatekeeper
   if (!tenantId || !licenseKey) {
     return (
       <>
@@ -496,16 +465,27 @@ export default function App() {
     );
   }
 
-  const safeFacultyList = Array.isArray(facultyList) && facultyList.length ? facultyList : DEFAULT_SAMPLE_FACULTY;
-  const safeStudents = Array.isArray(students) && students.length ? students : DEFAULT_SAMPLE_STUDENTS;
-  const safeTimetable = Array.isArray(timetable) && timetable.length ? timetable : DEFAULT_SAMPLE_TIMETABLE;
+  // Safe Fallback References
+  const safeFacultyList = Array.isArray(facultyList) ? facultyList : [];
+  const safeStudents = Array.isArray(students) ? students : [];
+  const safeTimetable = Array.isArray(timetable) ? timetable : [];
   const safeCoAttainment = Array.isArray(coAttainment) ? coAttainment : [];
 
-  const currentFaculty =
+  const currentFaculty: FacultyMaster =
     safeFacultyList.find((f) => f.id === selectedFacultyId) ||
-    safeFacultyList[0] ||
-    DEFAULT_SAMPLE_FACULTY[0];
+    safeFacultyList[0] || {
+      id: 'fac-init',
+      name: 'Authorized Faculty',
+      designation: 'Faculty / In-Charge',
+      department: 'Pharmacy',
+      role: 'FACULTY',
+      employmentType: 'FULL_TIME',
+      prescribedWeeklyHours: 16,
+      conductedWeeklyHours: 0,
+      assignedSubjects: [],
+    };
 
+  // If Tenant hasn't completed setup or tab is explicitly SETUP
   if (!institution || !institution.name || currentTab === 'SETUP') {
     return (
       <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans">
@@ -560,7 +540,7 @@ export default function App() {
   const defaultersCount = safeStudents.filter((s) => s?.isDefaulter).length;
   const lowAttainmentCount = safeCoAttainment.filter((c) => !c?.isAttained && (c?.studentsAttempted || 0) > 0).length;
 
-  const currentSelectedCohort = LOCAL_COHORTS.find((c) => c.id === selectedCohortId) || LOCAL_COHORTS[0];
+  const currentSelectedCohort = DEFAULT_COHORTS.find((c) => c.id === selectedCohortId) || DEFAULT_COHORTS[0];
 
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans">
@@ -605,6 +585,22 @@ export default function App() {
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-x-hidden space-y-6">
+          {/* Zero-State Warning Banner if Students or Faculty are Empty */}
+          {safeStudents.length === 0 && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-900">
+              <div className="text-xs">
+                <span className="font-bold block">Pristine Institutional Environment Active</span>
+                No enrolled scholars or class lists have been uploaded yet. Use the Roster Manager to import your CSV or load sample data in settings.
+              </div>
+              <button
+                onClick={() => setActiveStatutoryTab('WORKLOAD_ROSTER')}
+                className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition whitespace-nowrap"
+              >
+                Import Roster Now &rarr;
+              </button>
+            </div>
+          )}
+
           {/* Statutory Command Bar */}
           <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 shadow-lg text-white">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-slate-800">
@@ -624,7 +620,7 @@ export default function App() {
 
             <div className="mt-3">
               <CohortSelector
-                cohorts={LOCAL_COHORTS}
+                cohorts={DEFAULT_COHORTS}
                 workloads={workloads}
                 selectedClassId={selectedCohortId}
                 selectedSubjectCode={selectedSubjectCode}
@@ -710,32 +706,34 @@ export default function App() {
             </div>
           </div>
 
-          {/* Phase 6 & 7 Module Displays */}
+          {/* Statutory Module Rendering */}
           {activeStatutoryTab === 'WORKLOAD_ROSTER' && (
             <RosterWorkloadManager
-              cohorts={LOCAL_COHORTS}
+              cohorts={DEFAULT_COHORTS}
               facultyList={safeFacultyList}
               workloads={workloads}
-              onUpdateWorkloads={setWorkloads}
+              onUpdateWorkloads={(upd) => {
+                setWorkloads(upd);
+                localStorage.setItem('faculty_genie_workloads', JSON.stringify(upd));
+              }}
             />
           )}
 
           {activeStatutoryTab === 'INSPECTION_AUDIT' && (
             <StatutoryInspectionDashboard
               institution={institution}
-              cohorts={LOCAL_COHORTS}
+              cohorts={DEFAULT_COHORTS}
               facultyList={safeFacultyList}
               workloads={workloads}
               students={safeStudents}
             />
           )}
 
-          {/* Phases 2-5 Displays */}
           {activeStatutoryTab === 'PH4_DIARY' && (
             <TeachingDiaryView
               classId={selectedCohortId}
               subjectCode={selectedSubjectCode}
-              initialRecords={INITIAL_TEACHING_DIARY_RECORDS}
+              initialRecords={safeStudents.length > 0 ? INITIAL_TEACHING_DIARY_RECORDS : []}
               onGenerateChalkieDeck={(_r) => {
                 alert(`Chalkie AI Lesson Deck generated for: ${_r.topicOrExperimentTitle}`);
               }}
@@ -747,7 +745,7 @@ export default function App() {
               classId={selectedCohortId}
               subjectCode={selectedSubjectCode}
               batchId={selectedBatchId}
-              initialLogs={INITIAL_PRACTICAL_LOGS}
+              initialLogs={safeStudents.length > 0 ? INITIAL_PRACTICAL_LOGS : []}
             />
           )}
 
@@ -755,17 +753,17 @@ export default function App() {
             <SessionalMarksheetView
               classId={selectedCohortId}
               subjectCode={selectedSubjectCode}
-              initialSessionals={INITIAL_SESSIONAL_MARKS}
-              initialInternals={INITIAL_INTERNAL_ASSESSMENT}
+              initialSessionals={safeStudents.length > 0 ? INITIAL_SESSIONAL_MARKS : []}
+              initialInternals={safeStudents.length > 0 ? INITIAL_INTERNAL_ASSESSMENT : []}
             />
           )}
 
           {activeStatutoryTab === 'CO_BLOOMS' && (
             <COAttainmentRemedialTracker
               subjectCode={selectedSubjectCode}
-              academicYear="2026-2027"
+              academicYear={institution?.academicYear || '2026-2027'}
               courseOutcomes={INITIAL_COURSE_OUTCOMES}
-              studentScores={INITIAL_STUDENT_CO_SCORES}
+              studentScores={safeStudents.length > 0 ? INITIAL_STUDENT_CO_SCORES : []}
               onTriggerRemedialModule={(_stdId, co) => {
                 alert(`Remedial action plan initialized for student ${_stdId} targeting ${co}`);
               }}
@@ -891,9 +889,9 @@ export default function App() {
         subjectTitle="Pharmaceutics - Theory & Practical"
         facultyName={currentFaculty?.name || 'Dr. Hiteshkumar Agrawal'}
         academicYear={institution?.academicYear || '2026-2027'}
-        diaryRecords={INITIAL_TEACHING_DIARY_RECORDS}
-        practicalLogs={INITIAL_PRACTICAL_LOGS}
-        sessionals={INITIAL_SESSIONAL_MARKS}
+        diaryRecords={safeStudents.length > 0 ? INITIAL_TEACHING_DIARY_RECORDS : []}
+        practicalLogs={safeStudents.length > 0 ? INITIAL_PRACTICAL_LOGS : []}
+        sessionals={safeStudents.length > 0 ? INITIAL_SESSIONAL_MARKS : []}
         outcomes={INITIAL_COURSE_OUTCOMES}
       />
 
