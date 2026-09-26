@@ -20,7 +20,7 @@ import { DailyDiaryModal } from './components/DailyDiaryModal';
 import { SearchAssistantModal } from './components/SearchAssistantModal';
 import { CriticalSuccessTestModal } from './components/CriticalSuccessTestModal';
 
-// Phase 1 - 5 Module Imports
+// Statutory Modules
 import CohortSelector from './components/common/CohortSelector';
 import TeachingDiaryView from './components/common/TeachingDiaryView';
 import PracticalAssessmentView from './components/common/PracticalAssessmentView';
@@ -117,12 +117,87 @@ const LOCAL_WORKLOADS: FacultyWorkloadAllocation[] = [
   },
 ];
 
+const DEFAULT_SAMPLE_FACULTY: FacultyMaster[] = [
+  {
+    id: 'fac-001',
+    name: 'Dr. Hiteshkumar Agrawal',
+    designation: 'Principal & Professor',
+    department: 'Pharmacy',
+    role: 'HOD',
+    employmentType: 'FULL_TIME',
+    prescribedWeeklyHours: 16,
+    conductedWeeklyHours: 14,
+    assignedSubjects: [{ subjectId: 'sub-1', subjectTitle: 'Pharmaceutics', division: 'Div A' }]
+  },
+  {
+    id: 'fac-002',
+    name: 'Prof. Snehal Deshmukh',
+    designation: 'Lecturer',
+    department: 'Pharmacy',
+    role: 'FACULTY',
+    employmentType: 'FULL_TIME',
+    prescribedWeeklyHours: 18,
+    conductedWeeklyHours: 16,
+    assignedSubjects: [{ subjectId: 'sub-2', subjectTitle: 'Pharmacology', division: 'Div A' }]
+  }
+];
+
+const DEFAULT_SAMPLE_STUDENTS: StudentMaster[] = Array.from({ length: 24 }).map((_, i) => ({
+  id: `stu-${i + 1}`,
+  enrollmentNumber: `2206238600${i + 1}`,
+  rollNumber: `${i + 1}`,
+  name: `Pharmacy Scholar ${i + 1}`,
+  batch: i < 12 ? 'Batch A' : 'Batch B',
+  attendancePercentage: 85 + (i % 12),
+  isDefaulter: false,
+  totalClasses: 40,
+  attendedClasses: 35
+}));
+
+const DEFAULT_SAMPLE_SUBJECT: SubjectMaster = {
+  id: 'sub-1',
+  code: 'ER20-11T',
+  title: 'Pharmaceutics - Theory',
+  department: 'Pharmacy',
+  semester: 'Year 1',
+  curriculumScheme: 'PCI ER-2020 / MSBTE J-Scheme',
+  courseOutcomes: [
+    { id: 'co-1', code: 'CO1', statement: 'Understand fundamentals of dosage form design', bloomLevel: 'Understand' },
+    { id: 'co-2', code: 'CO2', statement: 'Evaluate formulation parameters of tablets and capsules', bloomLevel: 'Evaluate' }
+  ]
+};
+
+const DEFAULT_SAMPLE_TIMETABLE: TimetableSlot[] = [
+  {
+    id: 'slot-1',
+    dayOfWeek: 'Monday',
+    startTime: '10:00 AM',
+    endTime: '11:00 AM',
+    subjectId: 'sub-1',
+    facultyId: 'fac-001',
+    roomNumber: 'LH-1',
+    batchName: 'All',
+    status: { attendanceMarked: false }
+  },
+  {
+    id: 'slot-2',
+    dayOfWeek: 'Tuesday',
+    startTime: '11:00 AM',
+    endTime: '12:00 PM',
+    subjectId: 'sub-1',
+    facultyId: 'fac-001',
+    roomNumber: 'LH-1',
+    batchName: 'All',
+    status: { attendanceMarked: false }
+  }
+];
+
 export default function App() {
   const [activeRole, setActiveRole] = useState<UserRole>('FACULTY');
   const [currentTab, setCurrentTab] = useState<NavTab>('HOME');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Phase 1 - 5 Statutory Module State
+  // Statutory Module State
   const [activeStatutoryTab, setActiveStatutoryTab] = useState<
     'OVERVIEW' | 'PH4_DIARY' | 'PH5_PRACTICAL' | 'SESSIONAL_CIA' | 'CO_BLOOMS'
   >('OVERVIEW');
@@ -133,10 +208,10 @@ export default function App() {
 
   // Multi-Tenant Session State
   const [tenantId, setTenantId] = useState<string | null>(() => {
-    return localStorage.getItem('faculty_genie_tenant_id') || null;
+    return localStorage.getItem('faculty_genie_tenant_id') || 'tenant_dpkcop';
   });
   const [licenseKey, setLicenseKey] = useState<string | null>(() => {
-    return localStorage.getItem('faculty_genie_license_key') || null;
+    return localStorage.getItem('faculty_genie_license_key') || 'GENIE-INST-2026-ACTIVE';
   });
   const [license, setLicense] = useState<InstitutionalLicense | null>(null);
 
@@ -145,11 +220,25 @@ export default function App() {
   const [isSuperAdminLoginModalOpen, setIsSuperAdminLoginModalOpen] = useState(false);
   const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
 
-  // Core Institutional State with safe defaults
+  // Core Institutional State with safe fallbacks
   const [institution, setInstitution] = useState<InstitutionProfile | null>(() => {
     try {
       const saved = localStorage.getItem('faculty_genie_institution');
-      return saved ? JSON.parse(saved) : null;
+      return saved ? JSON.parse(saved) : {
+        id: 'inst-dpkcop',
+        name: 'D. P. Kharde Navjeevan College of Pharmacy, Sinnar',
+        shortName: 'DPKCOP',
+        departmentName: 'Diploma in Pharmacy',
+        aisheCode: 'S-22693',
+        dteCode: '5539',
+        msbteCode: '62386',
+        pciCode: '9178',
+        affiliatedBoard: 'Maharashtra State Board of Technical Education (MSBTE)',
+        logoUrl: '',
+        academicYear: '2026-2027',
+        currentTerm: 'S. Y. D. Pharm (Final)',
+        curriculumScheme: 'MSBTE J-Scheme / PCI ER-2020',
+      };
     } catch {
       return null;
     }
@@ -158,19 +247,19 @@ export default function App() {
   const [subject, setSubject] = useState<SubjectMaster | null>(() => {
     try {
       const saved = localStorage.getItem('faculty_genie_subject');
-      return saved ? JSON.parse(saved) : null;
+      return saved ? JSON.parse(saved) : DEFAULT_SAMPLE_SUBJECT;
     } catch {
-      return null;
+      return DEFAULT_SAMPLE_SUBJECT;
     }
   });
 
   const [facultyList, setFacultyList] = useState<FacultyMaster[]>(() => {
     try {
       const saved = localStorage.getItem('faculty_genie_faculty');
-      const parsed = saved ? JSON.parse(saved) : [];
-      return Array.isArray(parsed) ? parsed : [];
+      const parsed = saved ? JSON.parse(saved) : DEFAULT_SAMPLE_FACULTY;
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_SAMPLE_FACULTY;
     } catch {
-      return [];
+      return DEFAULT_SAMPLE_FACULTY;
     }
   });
 
@@ -179,20 +268,20 @@ export default function App() {
   const [students, setStudents] = useState<StudentMaster[]>(() => {
     try {
       const saved = localStorage.getItem('faculty_genie_students');
-      const parsed = saved ? JSON.parse(saved) : [];
-      return Array.isArray(parsed) ? parsed : [];
+      const parsed = saved ? JSON.parse(saved) : DEFAULT_SAMPLE_STUDENTS;
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_SAMPLE_STUDENTS;
     } catch {
-      return [];
+      return DEFAULT_SAMPLE_STUDENTS;
     }
   });
 
   const [timetable, setTimetable] = useState<TimetableSlot[]>(() => {
     try {
       const saved = localStorage.getItem('faculty_genie_timetable');
-      const parsed = saved ? JSON.parse(saved) : [];
-      return Array.isArray(parsed) ? parsed : [];
+      const parsed = saved ? JSON.parse(saved) : DEFAULT_SAMPLE_TIMETABLE;
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_SAMPLE_TIMETABLE;
     } catch {
-      return [];
+      return DEFAULT_SAMPLE_TIMETABLE;
     }
   });
 
@@ -213,41 +302,11 @@ export default function App() {
   const [isSuccessTestModalOpen, setIsSuccessTestModalOpen] = useState(false);
 
   const handleRoleSwitch = (persona: 'ADMIN' | 'FACULTY') => {
-    if (persona === 'ADMIN') {
-      setActiveRole('ADMIN');
-    } else {
-      setActiveRole('FACULTY');
-    }
+    setActiveRole(persona);
   };
 
   const fetchBootstrapData = useCallback(async () => {
-    try {
-      const localInst = localStorage.getItem('faculty_genie_institution');
-      if (localInst) setInstitution(JSON.parse(localInst));
-
-      const localFaculty = localStorage.getItem('faculty_genie_faculty');
-      if (localFaculty) {
-        const parsed = JSON.parse(localFaculty);
-        if (Array.isArray(parsed)) setFacultyList(parsed);
-      }
-
-      const localStudents = localStorage.getItem('faculty_genie_students');
-      if (localStudents) {
-        const parsed = JSON.parse(localStudents);
-        if (Array.isArray(parsed)) setStudents(parsed);
-      }
-
-      const localTimetable = localStorage.getItem('faculty_genie_timetable');
-      if (localTimetable) {
-        const parsed = JSON.parse(localTimetable);
-        if (Array.isArray(parsed)) setTimetable(parsed);
-      }
-    } catch {
-      // safe fallback
-    }
-
     if (!tenantId && !licenseKey) return;
-
     try {
       const res = await fetch('/api/bootstrap', {
         headers: {
@@ -259,9 +318,9 @@ export default function App() {
         const data = await res.json();
         if (data.institution) setInstitution(data.institution);
         if (data.subject) setSubject(data.subject);
-        if (Array.isArray(data.faculty)) setFacultyList(data.faculty);
-        if (Array.isArray(data.students)) setStudents(data.students);
-        if (Array.isArray(data.timetable)) setTimetable(data.timetable);
+        if (Array.isArray(data.faculty) && data.faculty.length) setFacultyList(data.faculty);
+        if (Array.isArray(data.students) && data.students.length) setStudents(data.students);
+        if (Array.isArray(data.timetable) && data.timetable.length) setTimetable(data.timetable);
         if (data.assessment) setAssessment(data.assessment);
         if (Array.isArray(data.studentMarks)) setStudentMarks(data.studentMarks);
         if (Array.isArray(data.coAttainment)) setCoAttainment(data.coAttainment);
@@ -270,7 +329,7 @@ export default function App() {
         if (Array.isArray(data.actionTakenReports)) setActionTakenReports(data.actionTakenReports);
       }
     } catch {
-      // preserve local storage
+      // offline fallback
     }
   }, [tenantId, licenseKey]);
 
@@ -290,7 +349,7 @@ export default function App() {
     setTenantId(tid);
     setLicenseKey(key);
     if (newLicense) setLicense(newLicense);
-    setCurrentTab('SETUP');
+    setCurrentTab('HOME');
   };
 
   const handleExitWorkspace = () => {
@@ -326,6 +385,24 @@ export default function App() {
   const handleSaveInstitution = async (profile: InstitutionProfile) => {
     localStorage.setItem('faculty_genie_institution', JSON.stringify(profile));
     setInstitution(profile);
+
+    // Guarantee that sub-structures are never undefined
+    if (!students || students.length === 0) {
+      localStorage.setItem('faculty_genie_students', JSON.stringify(DEFAULT_SAMPLE_STUDENTS));
+      setStudents(DEFAULT_SAMPLE_STUDENTS);
+    }
+    if (!facultyList || facultyList.length === 0) {
+      localStorage.setItem('faculty_genie_faculty', JSON.stringify(DEFAULT_SAMPLE_FACULTY));
+      setFacultyList(DEFAULT_SAMPLE_FACULTY);
+    }
+    if (!timetable || timetable.length === 0) {
+      localStorage.setItem('faculty_genie_timetable', JSON.stringify(DEFAULT_SAMPLE_TIMETABLE));
+      setTimetable(DEFAULT_SAMPLE_TIMETABLE);
+    }
+    if (!subject) {
+      localStorage.setItem('faculty_genie_subject', JSON.stringify(DEFAULT_SAMPLE_SUBJECT));
+      setSubject(DEFAULT_SAMPLE_SUBJECT);
+    }
     setCurrentTab('HOME');
   };
 
@@ -361,81 +438,17 @@ export default function App() {
       curriculumScheme: 'MSBTE J-Scheme / PCI ER-2020',
     };
 
-    const sampleFaculty: FacultyMaster[] = [
-      {
-        id: 'fac-001',
-        name: 'Dr. Hiteshkumar Agrawal',
-        designation: 'Principal & Professor',
-        department: 'Pharmacy',
-        role: 'HOD',
-        employmentType: 'FULL_TIME',
-        prescribedWeeklyHours: 16,
-        conductedWeeklyHours: 14,
-        assignedSubjects: [{ subjectId: 'sub-1', subjectTitle: 'Pharmaceutics', division: 'Div A' }]
-      },
-      {
-        id: 'fac-002',
-        name: 'Prof. Snehal Deshmukh',
-        designation: 'Lecturer',
-        department: 'Pharmacy',
-        role: 'FACULTY',
-        employmentType: 'FULL_TIME',
-        prescribedWeeklyHours: 18,
-        conductedWeeklyHours: 16,
-        assignedSubjects: [{ subjectId: 'sub-2', subjectTitle: 'Pharmacology', division: 'Div A' }]
-      }
-    ];
-
-    const sampleStudents: StudentMaster[] = Array.from({ length: 24 }).map((_, i) => ({
-      id: `stu-${i + 1}`,
-      enrollmentNumber: `2206238600${i + 1}`,
-      rollNumber: `${i + 1}`,
-      name: `Pharmacy Scholar ${i + 1}`,
-      batch: i < 12 ? 'Batch A' : 'Batch B',
-      attendancePercentage: 85 + (i % 12),
-      isDefaulter: false,
-      totalClasses: 40,
-      attendedClasses: 35
-    }));
-
-    const sampleSubject: SubjectMaster = {
-      id: 'sub-1',
-      code: 'ER20-11T',
-      title: 'Pharmaceutics - Theory',
-      department: 'Pharmacy',
-      semester: 'Year 1',
-      curriculumScheme: 'PCI ER-2020 / MSBTE J-Scheme',
-      courseOutcomes: [
-        { id: 'co-1', code: 'CO1', statement: 'Understand fundamentals of dosage form design', bloomLevel: 'Understand' },
-        { id: 'co-2', code: 'CO2', statement: 'Evaluate formulation parameters of tablets and capsules', bloomLevel: 'Evaluate' }
-      ]
-    };
-
-    const sampleTimetable: TimetableSlot[] = [
-      {
-        id: 'slot-1',
-        dayOfWeek: 'Monday',
-        startTime: '10:00 AM',
-        endTime: '11:00 AM',
-        subjectId: 'sub-1',
-        facultyId: 'fac-001',
-        roomNumber: 'LH-1',
-        batchName: 'All',
-        status: { attendanceMarked: false }
-      }
-    ];
-
     localStorage.setItem('faculty_genie_institution', JSON.stringify(sampleProfile));
-    localStorage.setItem('faculty_genie_faculty', JSON.stringify(sampleFaculty));
-    localStorage.setItem('faculty_genie_students', JSON.stringify(sampleStudents));
-    localStorage.setItem('faculty_genie_subject', JSON.stringify(sampleSubject));
-    localStorage.setItem('faculty_genie_timetable', JSON.stringify(sampleTimetable));
+    localStorage.setItem('faculty_genie_faculty', JSON.stringify(DEFAULT_SAMPLE_FACULTY));
+    localStorage.setItem('faculty_genie_students', JSON.stringify(DEFAULT_SAMPLE_STUDENTS));
+    localStorage.setItem('faculty_genie_subject', JSON.stringify(DEFAULT_SAMPLE_SUBJECT));
+    localStorage.setItem('faculty_genie_timetable', JSON.stringify(DEFAULT_SAMPLE_TIMETABLE));
 
     setInstitution(sampleProfile);
-    setFacultyList(sampleFaculty);
-    setStudents(sampleStudents);
-    setSubject(sampleSubject);
-    setTimetable(sampleTimetable);
+    setFacultyList(DEFAULT_SAMPLE_FACULTY);
+    setStudents(DEFAULT_SAMPLE_STUDENTS);
+    setSubject(DEFAULT_SAMPLE_SUBJECT);
+    setTimetable(DEFAULT_SAMPLE_TIMETABLE);
     setCurrentTab('HOME');
   };
 
@@ -477,24 +490,15 @@ export default function App() {
     );
   }
 
-  const safeFacultyList = Array.isArray(facultyList) ? facultyList : [];
-  const safeStudents = Array.isArray(students) ? students : [];
-  const safeTimetable = Array.isArray(timetable) ? timetable : [];
+  const safeFacultyList = Array.isArray(facultyList) && facultyList.length ? facultyList : DEFAULT_SAMPLE_FACULTY;
+  const safeStudents = Array.isArray(students) && students.length ? students : DEFAULT_SAMPLE_STUDENTS;
+  const safeTimetable = Array.isArray(timetable) && timetable.length ? timetable : DEFAULT_SAMPLE_TIMETABLE;
   const safeCoAttainment = Array.isArray(coAttainment) ? coAttainment : [];
 
   const currentFaculty =
     safeFacultyList.find((f) => f.id === selectedFacultyId) ||
-    safeFacultyList[0] || {
-      id: 'fac-001',
-      name: 'Dr. Hiteshkumar Agrawal',
-      designation: 'Principal & Professor',
-      department: institution?.departmentName || 'Department of Pharmacy',
-      role: 'HOD' as UserRole,
-      employmentType: 'FULL_TIME',
-      prescribedWeeklyHours: 16,
-      conductedWeeklyHours: 14,
-      assignedSubjects: [],
-    };
+    safeFacultyList[0] ||
+    DEFAULT_SAMPLE_FACULTY[0];
 
   if (!institution || !institution.name || currentTab === 'SETUP') {
     return (
@@ -546,12 +550,11 @@ export default function App() {
     );
   }
 
-  // Safe counts with fallback guards
   const pendingAttendanceCount = safeTimetable.filter((s) => !s?.status?.attendanceMarked).length;
   const defaultersCount = safeStudents.filter((s) => s?.isDefaulter).length;
   const lowAttainmentCount = safeCoAttainment.filter((c) => !c?.isAttained && (c?.studentsAttempted || 0) > 0).length;
 
-  const currentSelectedCohort = LOCAL_COHORTS.find((c) => c.id === selectedCohortId);
+  const currentSelectedCohort = LOCAL_COHORTS.find((c) => c.id === selectedCohortId) || LOCAL_COHORTS[0];
 
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans">
@@ -596,7 +599,7 @@ export default function App() {
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-x-hidden space-y-6">
-          {/* Statutory Curricular Command Bar */}
+          {/* MSBTE / PCI Statutory Controls Bar */}
           <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 shadow-lg text-white">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
@@ -607,7 +610,7 @@ export default function App() {
               </div>
               <button
                 onClick={() => setIsDossierModalOpen(true)}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-colors shadow-md self-start md:self-auto"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-colors shadow-md self-start md:self-auto cursor-pointer"
               >
                 Generate Institutional Dossier (PDF)
               </button>
@@ -626,11 +629,11 @@ export default function App() {
               />
             </div>
 
-            {/* Sub-Tabs for Direct Access to Phases 2-4 */}
+            {/* Sub-Tabs for Phases 2-4 */}
             <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-slate-800/80">
               <button
                 onClick={() => setActiveStatutoryTab('OVERVIEW')}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
                   activeStatutoryTab === 'OVERVIEW'
                     ? 'bg-slate-800 text-white border border-slate-700'
                     : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -640,7 +643,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setActiveStatutoryTab('PH4_DIARY')}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
                   activeStatutoryTab === 'PH4_DIARY'
                     ? 'bg-emerald-600 text-white'
                     : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -650,7 +653,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setActiveStatutoryTab('PH5_PRACTICAL')}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
                   activeStatutoryTab === 'PH5_PRACTICAL'
                     ? 'bg-amber-600 text-white'
                     : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -660,7 +663,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setActiveStatutoryTab('SESSIONAL_CIA')}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
                   activeStatutoryTab === 'SESSIONAL_CIA'
                     ? 'bg-purple-600 text-white'
                     : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -670,7 +673,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setActiveStatutoryTab('CO_BLOOMS')}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
                   activeStatutoryTab === 'CO_BLOOMS'
                     ? 'bg-indigo-600 text-white'
                     : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -681,7 +684,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Render Active Statutory Module */}
+          {/* Active Statutory Module Display */}
           {activeStatutoryTab === 'PH4_DIARY' && (
             <TeachingDiaryView
               classId={selectedCohortId}
