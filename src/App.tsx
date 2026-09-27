@@ -587,308 +587,310 @@ export default function App() {
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-x-hidden space-y-6">
-          {safeStudents.length === 0 && (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-900">
-              <div className="text-xs">
-                <span className="font-bold block">Pristine Institutional Environment Active</span>
-                No enrolled scholars or class lists have been uploaded yet. Use the Roster Manager to import your CSV or load sample data in settings.
-              </div>
-              <button
-                onClick={() => setActiveStatutoryTab('WORKLOAD_ROSTER')}
-                className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition whitespace-nowrap cursor-pointer"
-              >
-                Import Roster Now &rarr;
-              </button>
-            </div>
-          )}
-
-          {/* Statutory Command Bar */}
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 shadow-lg text-white">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <span className="bg-blue-600 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
-                  MSBTE / PCI ER-2020 OS
-                </span>
-                <span className="text-xs text-slate-400">Statutory Pharmacy Academic Controls</span>
-              </div>
-              <div className="flex items-center gap-2 self-start md:self-auto">
-                <button
-                  type="button"
-                  onClick={() => setCurrentTab('OFFICE_DESKS')}
-                  className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-colors shadow-md inline-flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Building className="w-3.5 h-3.5" />
-                  Institutional Desks &rarr;
-                </button>
-                <button
-                  onClick={() => setIsDossierModalOpen(true)}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-colors shadow-md cursor-pointer"
-                >
-                  Generate Dossier (PDF)
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <CohortSelector
-                cohorts={DEFAULT_COHORTS}
-                workloads={workloads}
-                selectedClassId={selectedCohortId}
-                selectedSubjectCode={selectedSubjectCode}
-                selectedBatchId={selectedBatchId}
-                onClassChange={setSelectedCohortId}
-                onSubjectChange={setSelectedSubjectCode}
-                onBatchChange={setSelectedBatchId}
-              />
-            </div>
-
-            {/* Sub-Tabs for Phases 1-7 */}
-            <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-slate-800/80">
-              <button
-                onClick={() => setActiveStatutoryTab('OVERVIEW')}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                  activeStatutoryTab === 'OVERVIEW'
-                    ? 'bg-slate-800 text-white border border-slate-700'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                Dashboard Overview
-              </button>
-              <button
-                onClick={() => setActiveStatutoryTab('PH4_DIARY')}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                  activeStatutoryTab === 'PH4_DIARY'
-                    ? 'bg-emerald-600 text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                Teaching Diary (PH-4)
-              </button>
-              <button
-                onClick={() => setActiveStatutoryTab('PH5_PRACTICAL')}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                  activeStatutoryTab === 'PH5_PRACTICAL'
-                    ? 'bg-amber-600 text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                Practical Continuous Log (PH-5)
-              </button>
-              <button
-                onClick={() => setActiveStatutoryTab('SESSIONAL_CIA')}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                  activeStatutoryTab === 'SESSIONAL_CIA'
-                    ? 'bg-purple-600 text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                Sessionals &amp; CIAAN-2023
-              </button>
-              <button
-                onClick={() => setActiveStatutoryTab('CO_BLOOMS')}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                  activeStatutoryTab === 'CO_BLOOMS'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                CO Attainment &amp; Remedial
-              </button>
-              <button
-                onClick={() => setActiveStatutoryTab('WORKLOAD_ROSTER')}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                  activeStatutoryTab === 'WORKLOAD_ROSTER'
-                    ? 'bg-cyan-600 text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                Workload &amp; Roster (PH-6)
-              </button>
-              <button
-                onClick={() => setActiveStatutoryTab('INSPECTION_AUDIT')}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                  activeStatutoryTab === 'INSPECTION_AUDIT'
-                    ? 'bg-teal-600 text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                Inspection &amp; SIF (PH-7)
-              </button>
-            </div>
-          </div>
-
-          {activeStatutoryTab === 'WORKLOAD_ROSTER' && (
-            <RosterWorkloadManager
-              cohorts={DEFAULT_COHORTS}
-              facultyList={safeFacultyList}
-              workloads={workloads}
-              onUpdateWorkloads={(upd) => {
-                setWorkloads(upd);
-                localStorage.setItem('faculty_genie_workloads', JSON.stringify(upd));
-              }}
-            />
-          )}
-
-          {activeStatutoryTab === 'INSPECTION_AUDIT' && (
-            <StatutoryInspectionDashboard
-              institution={institution}
-              cohorts={DEFAULT_COHORTS}
-              facultyList={safeFacultyList}
-              workloads={workloads}
-              students={safeStudents}
-            />
-          )}
-
-          {activeStatutoryTab === 'PH4_DIARY' && (
-            <TeachingDiaryView
-              classId={selectedCohortId}
-              subjectCode={selectedSubjectCode}
-              initialRecords={safeStudents.length > 0 ? INITIAL_TEACHING_DIARY_RECORDS : []}
-              onGenerateChalkieDeck={(_r) => {
-                alert(`Chalkie AI Lesson Deck generated for: ${_r.topicOrExperimentTitle}`);
-              }}
-            />
-          )}
-
-          {activeStatutoryTab === 'PH5_PRACTICAL' && (
-            <PracticalAssessmentView
-              classId={selectedCohortId}
-              subjectCode={selectedSubjectCode}
-              batchId={selectedBatchId}
-              initialLogs={safeStudents.length > 0 ? INITIAL_PRACTICAL_LOGS : []}
-            />
-          )}
-
-          {activeStatutoryTab === 'SESSIONAL_CIA' && (
-            <SessionalMarksheetView
-              classId={selectedCohortId}
-              subjectCode={selectedSubjectCode}
-              initialSessionals={safeStudents.length > 0 ? INITIAL_SESSIONAL_MARKS : []}
-              initialInternals={safeStudents.length > 0 ? INITIAL_INTERNAL_ASSESSMENT : []}
-            />
-          )}
-
-          {activeStatutoryTab === 'CO_BLOOMS' && (
-            <COAttainmentRemedialTracker
-              subjectCode={selectedSubjectCode}
-              academicYear={institution?.academicYear || '2026-2027'}
-              courseOutcomes={INITIAL_COURSE_OUTCOMES}
-              studentScores={safeStudents.length > 0 ? INITIAL_STUDENT_CO_SCORES : []}
-              onTriggerRemedialModule={(_stdId, co) => {
-                alert(`Remedial action plan initialized for student ${_stdId} targeting ${co}`);
-              }}
-            />
-          )}
-
-          {activeStatutoryTab === 'OVERVIEW' && (
+          {/* IMMEDIATE TOP-LEVEL ROUTING FOR INSTITUTIONAL DESKS */}
+          {currentTab === 'OFFICE_DESKS' ? (
+            <OfficeAIEngine onExit={() => setCurrentTab('HOME')} />
+          ) : (
             <>
-              {currentTab === 'HOME' && (
-                <HomeView
-                  activeRole={activeRole}
-                  timetable={safeTimetable}
-                  students={safeStudents}
-                  coAttainment={safeCoAttainment}
-                  onNavigateTab={(tab) => setCurrentTab(tab)}
-                  onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
-                  onOpenDailyDiary={(slot) => {
-                    setActiveDiarySlot(slot);
-                    setIsDiaryModalOpen(true);
+              {safeStudents.length === 0 && (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-900">
+                  <div className="text-xs">
+                    <span className="font-bold block">Pristine Institutional Environment Active</span>
+                    No enrolled scholars or class lists have been uploaded yet. Use the Roster Manager to import your CSV or load sample data in settings.
+                  </div>
+                  <button
+                    onClick={() => setActiveStatutoryTab('WORKLOAD_ROSTER')}
+                    className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition whitespace-nowrap cursor-pointer"
+                  >
+                    Import Roster Now &rarr;
+                  </button>
+                </div>
+              )}
+
+              {/* Statutory Command Bar */}
+              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 shadow-lg text-white">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-blue-600 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
+                      MSBTE / PCI ER-2020 OS
+                    </span>
+                    <span className="text-xs text-slate-400">Statutory Pharmacy Academic Controls</span>
+                  </div>
+                  <div className="flex items-center gap-2 self-start md:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentTab('OFFICE_DESKS')}
+                      className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-colors shadow-md inline-flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Building className="w-3.5 h-3.5" />
+                      Institutional Desks &rarr;
+                    </button>
+                    <button
+                      onClick={() => setIsDossierModalOpen(true)}
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-colors shadow-md cursor-pointer"
+                    >
+                      Generate Dossier (PDF)
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <CohortSelector
+                    cohorts={DEFAULT_COHORTS}
+                    workloads={workloads}
+                    selectedClassId={selectedCohortId}
+                    selectedSubjectCode={selectedSubjectCode}
+                    selectedBatchId={selectedBatchId}
+                    onClassChange={setSelectedCohortId}
+                    onSubjectChange={setSelectedSubjectCode}
+                    onBatchChange={setSelectedBatchId}
+                  />
+                </div>
+
+                {/* Sub-Tabs for Phases 1-7 */}
+                <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-slate-800/80">
+                  <button
+                    onClick={() => setActiveStatutoryTab('OVERVIEW')}
+                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      activeStatutoryTab === 'OVERVIEW'
+                        ? 'bg-slate-800 text-white border border-slate-700'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                    }`}
+                  >
+                    Dashboard Overview
+                  </button>
+                  <button
+                    onClick={() => setActiveStatutoryTab('PH4_DIARY')}
+                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      activeStatutoryTab === 'PH4_DIARY'
+                        ? 'bg-emerald-600 text-white'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                    }`}
+                  >
+                    Teaching Diary (PH-4)
+                  </button>
+                  <button
+                    onClick={() => setActiveStatutoryTab('PH5_PRACTICAL')}
+                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      activeStatutoryTab === 'PH5_PRACTICAL'
+                        ? 'bg-amber-600 text-white'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                    }`}
+                  >
+                    Practical Continuous Log (PH-5)
+                  </button>
+                  <button
+                    onClick={() => setActiveStatutoryTab('SESSIONAL_CIA')}
+                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      activeStatutoryTab === 'SESSIONAL_CIA'
+                        ? 'bg-purple-600 text-white'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                    }`}
+                  >
+                    Sessionals &amp; CIAAN-2023
+                  </button>
+                  <button
+                    onClick={() => setActiveStatutoryTab('CO_BLOOMS')}
+                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      activeStatutoryTab === 'CO_BLOOMS'
+                        ? 'bg-indigo-600 text-white'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                    }`}
+                  >
+                    CO Attainment &amp; Remedial
+                  </button>
+                  <button
+                    onClick={() => setActiveStatutoryTab('WORKLOAD_ROSTER')}
+                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      activeStatutoryTab === 'WORKLOAD_ROSTER'
+                        ? 'bg-cyan-600 text-white'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                    }`}
+                  >
+                    Workload &amp; Roster (PH-6)
+                  </button>
+                  <button
+                    onClick={() => setActiveStatutoryTab('INSPECTION_AUDIT')}
+                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      activeStatutoryTab === 'INSPECTION_AUDIT'
+                        ? 'bg-teal-600 text-white'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                    }`}
+                  >
+                    Inspection &amp; SIF (PH-7)
+                  </button>
+                </div>
+              </div>
+
+              {activeStatutoryTab === 'WORKLOAD_ROSTER' && (
+                <RosterWorkloadManager
+                  cohorts={DEFAULT_COHORTS}
+                  facultyList={safeFacultyList}
+                  workloads={workloads}
+                  onUpdateWorkloads={(upd) => {
+                    setWorkloads(upd);
+                    localStorage.setItem('faculty_genie_workloads', JSON.stringify(upd));
                   }}
-                  onRunSuccessTest={() => setIsSuccessTestModalOpen(true)}
                 />
               )}
 
-              {/* INTEGRATED INSTITUTIONAL OFFICE DESKS VIEW */}
-              {currentTab === 'OFFICE_DESKS' && (
-                <OfficeAIEngine onExit={() => setCurrentTab('HOME')} />
+              {activeStatutoryTab === 'INSPECTION_AUDIT' && (
+                <StatutoryInspectionDashboard
+                  institution={institution}
+                  cohorts={DEFAULT_COHORTS}
+                  facultyList={safeFacultyList}
+                  workloads={workloads}
+                  students={safeStudents}
+                />
               )}
 
-              {currentTab === 'MY_WORK' && (
-                <MyWorkView
-                  faculty={currentFaculty}
-                  timetable={safeTimetable}
-                  teachingDiaryEntries={teachingDiaryEntries}
-                  onOpenDailyDiary={(slot) => {
-                    setActiveDiarySlot(slot);
-                    setIsDiaryModalOpen(true);
+              {activeStatutoryTab === 'PH4_DIARY' && (
+                <TeachingDiaryView
+                  classId={selectedCohortId}
+                  subjectCode={selectedSubjectCode}
+                  initialRecords={safeStudents.length > 0 ? INITIAL_TEACHING_DIARY_RECORDS : []}
+                  onGenerateChalkieDeck={(_r) => {
+                    alert(`Chalkie AI Lesson Deck generated for: ${_r.topicOrExperimentTitle}`);
                   }}
-                  onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
-                  onHODSignOff={() => {}}
                 />
               )}
 
-              {currentTab === 'TEACH' && (
-                <TeachView
-                  subject={subject}
-                  students={safeStudents}
-                  currentFaculty={currentFaculty}
-                  institution={institution}
-                  onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
-                  onNavigateTab={(tab) => setCurrentTab(tab)}
+              {activeStatutoryTab === 'PH5_PRACTICAL' && (
+                <PracticalAssessmentView
+                  classId={selectedCohortId}
+                  subjectCode={selectedSubjectCode}
+                  batchId={selectedBatchId}
+                  initialLogs={safeStudents.length > 0 ? INITIAL_PRACTICAL_LOGS : []}
                 />
               )}
 
-              {currentTab === 'CREATE' && (
-                <CreateView
-                  subject={subject}
-                  onNavigateTab={(tab) => setCurrentTab(tab)}
+              {activeStatutoryTab === 'SESSIONAL_CIA' && (
+                <SessionalMarksheetView
+                  classId={selectedCohortId}
+                  subjectCode={selectedSubjectCode}
+                  initialSessionals={safeStudents.length > 0 ? INITIAL_SESSIONAL_MARKS : []}
+                  initialInternals={safeStudents.length > 0 ? INITIAL_INTERNAL_ASSESSMENT : []}
                 />
               )}
 
-              {currentTab === 'ASSESS' && (
-                <AssessView
-                  assessment={assessment}
-                  students={safeStudents}
-                  studentMarks={studentMarks}
-                  subject={subject}
-                  activeRole={activeRole}
-                  institution={institution}
-                  onSaveMarks={handleSaveMarks}
-                  onNavigateTab={(tab) => setCurrentTab(tab)}
+              {activeStatutoryTab === 'CO_BLOOMS' && (
+                <COAttainmentRemedialTracker
+                  subjectCode={selectedSubjectCode}
+                  academicYear={institution?.academicYear || '2026-2027'}
+                  courseOutcomes={INITIAL_COURSE_OUTCOMES}
+                  studentScores={safeStudents.length > 0 ? INITIAL_STUDENT_CO_SCORES : []}
+                  onTriggerRemedialModule={(_stdId, co) => {
+                    alert(`Remedial action plan initialized for student ${_stdId} targeting ${co}`);
+                  }}
                 />
               )}
 
-              {currentTab === 'STUDENTS' && (
-                <StudentsView
-                  students={safeStudents}
-                  institution={institution}
-                  onNavigateTab={(tab) => setCurrentTab(tab)}
-                />
-              )}
+              {activeStatutoryTab === 'OVERVIEW' && (
+                <>
+                  {currentTab === 'HOME' && (
+                    <HomeView
+                      activeRole={activeRole}
+                      timetable={safeTimetable}
+                      students={safeStudents}
+                      coAttainment={safeCoAttainment}
+                      onNavigateTab={(tab) => setCurrentTab(tab)}
+                      onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
+                      onOpenDailyDiary={(slot) => {
+                        setActiveDiarySlot(slot);
+                        setIsDiaryModalOpen(true);
+                      }}
+                      onRunSuccessTest={() => setIsSuccessTestModalOpen(true)}
+                    />
+                  )}
 
-              {currentTab === 'OUTCOMES' && (
-                <OutcomesView
-                  subject={subject}
-                  coAttainment={safeCoAttainment}
-                  poAttainments={poAttainments}
-                  programOutcomes={programOutcomes}
-                  actionTakenReports={actionTakenReports}
-                  activeRole={activeRole}
-                  onSignOffATR={() => {}}
-                  onDraftNewATR={() => {}}
-                  onRecalculateWithThreshold={() => {}}
-                  onNavigateTab={(tab) => setCurrentTab(tab)}
-                />
-              )}
+                  {currentTab === 'MY_WORK' && (
+                    <MyWorkView
+                      faculty={currentFaculty}
+                      timetable={safeTimetable}
+                      teachingDiaryEntries={teachingDiaryEntries}
+                      onOpenDailyDiary={(slot) => {
+                        setActiveDiarySlot(slot);
+                        setIsDiaryModalOpen(true);
+                      }}
+                      onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
+                      onHODSignOff={() => {}}
+                    />
+                  )}
 
-              {currentTab === 'DOCUMENTS' && (
-                <DocumentsView
-                  institution={institution}
-                  subject={subject}
-                  students={safeStudents}
-                  auditLogs={auditLogs}
-                  actionTakenReports={actionTakenReports}
-                  onNavigateTab={(tab) => setCurrentTab(tab)}
-                />
-              )}
+                  {currentTab === 'TEACH' && (
+                    <TeachView
+                      subject={subject}
+                      students={safeStudents}
+                      currentFaculty={currentFaculty}
+                      institution={institution}
+                      onOpenQuickAttendance={() => setIsAttendanceModalOpen(true)}
+                      onNavigateTab={(tab) => setCurrentTab(tab)}
+                    />
+                  )}
 
-              {currentTab === 'QCI_ACCREDITATION' && (
-                <QCIAccreditationView
-                  institution={institution}
-                  subject={subject}
-                  students={safeStudents}
-                  actionTakenReports={actionTakenReports}
-                />
+                  {currentTab === 'CREATE' && (
+                    <CreateView
+                      subject={subject}
+                      onNavigateTab={(tab) => setCurrentTab(tab)}
+                    />
+                  )}
+
+                  {currentTab === 'ASSESS' && (
+                    <AssessView
+                      assessment={assessment}
+                      students={safeStudents}
+                      studentMarks={studentMarks}
+                      subject={subject}
+                      activeRole={activeRole}
+                      institution={institution}
+                      onSaveMarks={handleSaveMarks}
+                      onNavigateTab={(tab) => setCurrentTab(tab)}
+                    />
+                  )}
+
+                  {currentTab === 'STUDENTS' && (
+                    <StudentsView
+                      students={safeStudents}
+                      institution={institution}
+                      onNavigateTab={(tab) => setCurrentTab(tab)}
+                    />
+                  )}
+
+                  {currentTab === 'OUTCOMES' && (
+                    <OutcomesView
+                      subject={subject}
+                      coAttainment={safeCoAttainment}
+                      poAttainments={poAttainments}
+                      programOutcomes={programOutcomes}
+                      actionTakenReports={actionTakenReports}
+                      activeRole={activeRole}
+                      onSignOffATR={() => {}}
+                      onDraftNewATR={() => {}}
+                      onRecalculateWithThreshold={() => {}}
+                      onNavigateTab={(tab) => setCurrentTab(tab)}
+                    />
+                  )}
+
+                  {currentTab === 'DOCUMENTS' && (
+                    <DocumentsView
+                      institution={institution}
+                      subject={subject}
+                      students={safeStudents}
+                      auditLogs={auditLogs}
+                      actionTakenReports={actionTakenReports}
+                      onNavigateTab={(tab) => setCurrentTab(tab)}
+                    />
+                  )}
+
+                  {currentTab === 'QCI_ACCREDITATION' && (
+                    <QCIAccreditationView
+                      institution={institution}
+                      subject={subject}
+                      students={safeStudents}
+                      actionTakenReports={actionTakenReports}
+                    />
+                  )}
+                </>
               )}
             </>
           )}
