@@ -61,6 +61,8 @@ import {
   AuditLogEntry,
 } from './types';
 
+import { Building2 } from 'lucide-react';
+
 // Curricular Schemas (PCI ER-2020 Statutory Structure)
 const DEFAULT_COHORTS: AcademicClassCohort[] = [
   {
@@ -358,7 +360,7 @@ export default function App() {
     }
   };
 
-  // Optional Demo Dataset Loader (Useful for inspection drills / faculty training)
+  // Optional Demo Dataset Loader
   const handleLoadSampleDataset = async () => {
     const sampleProfile: InstitutionProfile = {
       id: 'inst-dpkcop',
@@ -610,12 +612,21 @@ export default function App() {
                 </span>
                 <span className="text-xs text-slate-400">Statutory Pharmacy Academic Controls</span>
               </div>
-              <button
-                onClick={() => setIsDossierModalOpen(true)}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-colors shadow-md self-start md:self-auto cursor-pointer"
-              >
-                Generate Institutional Dossier (PDF)
-              </button>
+              <div className="flex items-center gap-2 self-start md:self-auto">
+                <a
+                  href="/office"
+                  className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-colors shadow-md inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Building2 className="w-3.5 h-3.5" />
+                  Institutional Office OS &rarr;
+                </a>
+                <button
+                  onClick={() => setIsDossierModalOpen(true)}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-colors shadow-md cursor-pointer"
+                >
+                  Generate Dossier (PDF)
+                </button>
+              </div>
             </div>
 
             <div className="mt-3">
