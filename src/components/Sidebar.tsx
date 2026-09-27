@@ -1,18 +1,19 @@
+'use client';
+
 import React from 'react';
 import {
-  LayoutDashboard,
-  CalendarCheck,
+  Home,
+  Briefcase,
   BookOpen,
-  Sparkles,
-  ClipboardList,
-  GraduationCap,
-  TrendingUp,
-  FileText,
+  PlusCircle,
+  ClipboardCheck,
+  Users,
   Award,
-  Settings,
+  FileText,
   ShieldCheck,
-  ChevronRight,
-  X,
+  Building,
+  Crown,
+  X
 } from 'lucide-react';
 import { UserRole, InstitutionalLicense, FacultyMaster } from '../types';
 
@@ -26,193 +27,106 @@ export type NavTab =
   | 'OUTCOMES'
   | 'DOCUMENTS'
   | 'QCI_ACCREDITATION'
+  | 'OFFICE_DESKS'
   | 'SETUP';
 
 interface SidebarProps {
   currentTab: NavTab;
   setCurrentTab: (tab: NavTab) => void;
   activeRole: UserRole;
-  pendingAttendanceCount?: number;
-  defaultersCount?: number;
-  lowAttainmentCount?: number;
-  onOpenSuperAdmin?: () => void;
-  license?: InstitutionalLicense | null;
-  currentFaculty?: FacultyMaster | null;
-  isOpen?: boolean;
-  onClose?: () => void;
+  pendingAttendanceCount: number;
+  defaultersCount: number;
+  lowAttainmentCount: number;
+  onOpenSuperAdmin: () => void;
+  license: InstitutionalLicense | null;
+  currentFaculty: FacultyMaster;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({
+export function Sidebar({
   currentTab,
   setCurrentTab,
   activeRole,
-  pendingAttendanceCount = 0,
-  defaultersCount = 0,
-  lowAttainmentCount = 0,
+  pendingAttendanceCount,
+  defaultersCount,
+  lowAttainmentCount,
   onOpenSuperAdmin,
   license,
   currentFaculty,
-  isOpen = false,
+  isOpen,
   onClose,
-}) => {
+}: SidebarProps) {
   const navItems = [
-    {
-      id: 'HOME' as NavTab,
-      label: 'Cockpit & Dashboard',
-      icon: LayoutDashboard,
-      badge: null,
-    },
-    {
-      id: 'MY_WORK' as NavTab,
-      label: 'My Teaching Diary',
-      icon: CalendarCheck,
-      badge: pendingAttendanceCount > 0 ? `${pendingAttendanceCount} Pending` : null,
-      badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
-    },
-    {
-      id: 'TEACH' as NavTab,
-      label: 'Daily Class Delivery',
-      icon: BookOpen,
-      badge: null,
-    },
-    {
-      id: 'CREATE' as NavTab,
-      label: 'Genie Curriculum Copilot',
-      icon: Sparkles,
-      badge: 'AI',
-      badgeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200',
-    },
-    {
-      id: 'ASSESS' as NavTab,
-      label: 'Assessments & Marks',
-      icon: ClipboardList,
-      badge: null,
-    },
-    {
-      id: 'STUDENTS' as NavTab,
-      label: 'Students & Attendance',
-      icon: GraduationCap,
-      badge: defaultersCount > 0 ? `${defaultersCount} Defaulters` : null,
-      badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
-    },
-    {
-      id: 'OUTCOMES' as NavTab,
-      label: 'CO-PO & NBA Intelligence',
-      icon: TrendingUp,
-      badge: lowAttainmentCount > 0 ? `${lowAttainmentCount} Under-Attained` : null,
-      badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
-    },
-    {
-      id: 'DOCUMENTS' as NavTab,
-      label: 'Course File & MSBTE Proformas',
-      icon: FileText,
-      badge: 'PH-1..11',
-      badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    },
-    {
-      id: 'QCI_ACCREDITATION' as NavTab,
-      label: 'PCI-QCI Accreditation',
-      icon: Award,
-      badge: '11-Crit',
-      badgeColor: 'bg-amber-100 text-slate-950 font-black border-amber-300',
-    },
-    {
-      id: 'SETUP' as NavTab,
-      label: 'Institutional Master Control',
-      icon: Settings,
-      badge: null,
-    },
+    { id: 'HOME' as NavTab, label: 'Dashboard Home', icon: Home },
+    { id: 'MY_WORK' as NavTab, label: 'My Academic Work', icon: Briefcase },
+    { id: 'TEACH' as NavTab, label: 'Lesson Planner & Syllabus', icon: BookOpen },
+    { id: 'CREATE' as NavTab, label: 'Assessment Creator', icon: PlusCircle },
+    { id: 'ASSESS' as NavTab, label: 'Marks & Internal Tests', icon: ClipboardCheck },
+    { id: 'STUDENTS' as NavTab, label: 'Student Cohorts', icon: Users, badge: defaultersCount > 0 ? `${defaultersCount} Def` : undefined },
+    { id: 'OUTCOMES' as NavTab, label: 'CO-PO Attainment', icon: Award, badge: lowAttainmentCount > 0 ? `${lowAttainmentCount} Low` : undefined },
+    { id: 'DOCUMENTS' as NavTab, label: 'Course Dossiers & Files', icon: FileText },
+    { id: 'OFFICE_DESKS' as NavTab, label: 'Institutional Office Desks', icon: Building, highlight: true },
+    { id: 'QCI_ACCREDITATION' as NavTab, label: 'QCI / NBA Standards', icon: ShieldCheck },
   ];
-
-  const handleSelectTab = (tab: NavTab) => {
-    setCurrentTab(tab);
-    if (onClose) onClose();
-  };
 
   return (
     <>
-      {/* Mobile Drawer Backdrop */}
+      {/* Mobile Backdrop */}
       {isOpen && (
         <div
           onClick={onClose}
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs lg:hidden"
         />
       )}
 
-      {/* Main Sidebar Shell */}
       <aside
-        className={`fixed lg:static top-0 left-0 h-full lg:h-auto z-50 lg:z-0 w-72 bg-white border-r border-slate-200 p-4 flex flex-col justify-between transition-transform duration-200 ease-in-out shrink-0 ${
+        className={`fixed lg:static top-0 bottom-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col justify-between transition-transform duration-200 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        <div className="space-y-4">
-          {/* Mobile Close Button & Header */}
+        <div className="p-4 space-y-4 overflow-y-auto flex-1">
+          {/* Mobile Header Close */}
           <div className="flex items-center justify-between lg:hidden pb-2 border-b border-slate-100">
-            <div className="text-xs font-black uppercase tracking-wider text-slate-900">
-              Academic OS Navigation
-            </div>
-            <button
-              onClick={onClose}
-              className="p-1 rounded-lg text-slate-500 hover:bg-slate-100 cursor-pointer"
-            >
-              <X className="w-5 h-5" />
+            <span className="font-black text-xs uppercase tracking-wider text-slate-800">Navigation</span>
+            <button onClick={onClose} className="p-1.5 rounded-lg bg-slate-100 text-slate-600">
+              <X className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Active Persona Badge */}
-          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-            <div className="text-[10px] font-bold uppercase text-slate-400">Active Authority Persona</div>
-            <div className="text-xs font-black text-slate-900 mt-0.5 flex items-center justify-between">
-              <span>{activeRole === 'ADMIN' ? 'Executive Oversight (Admin)' : 'Teaching Faculty Mode'}</span>
-              <span
-                className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                  activeRole === 'ADMIN'
-                    ? 'bg-indigo-100 text-indigo-800'
-                    : 'bg-emerald-100 text-emerald-800'
-                }`}
-              >
-                {activeRole}
-              </span>
-            </div>
-            {currentFaculty && (
-              <div className="text-[11px] text-slate-600 mt-1 truncate">
-                {currentFaculty.name}
-              </div>
-            )}
+          {/* Active Faculty Indicator */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+            <div className="text-[10px] uppercase font-bold text-slate-400">Authenticated Faculty</div>
+            <div className="font-extrabold text-xs text-slate-900 truncate mt-0.5">{currentFaculty?.name}</div>
+            <div className="text-[10px] text-blue-700 font-semibold">{currentFaculty?.designation}</div>
           </div>
 
-          {/* Navigation Links List */}
-          <nav className="space-y-1">
+          {/* Main Navigation Links */}
+          <nav className="space-y-1 text-xs font-bold">
             {navItems.map((item) => {
-              const isSelected = currentTab === item.id;
               const Icon = item.icon;
+              const isActive = currentTab === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => handleSelectTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                    isSelected
-                      ? 'bg-slate-900 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  onClick={() => {
+                    setCurrentTab(item.id);
+                    onClose();
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition cursor-pointer text-left ${
+                    isActive
+                      ? 'bg-blue-700 text-white shadow-sm'
+                      : item.highlight
+                      ? 'bg-blue-50/70 text-blue-900 hover:bg-blue-100/80 border border-blue-200/60'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Icon
-                      className={`w-4 h-4 ${
-                        isSelected ? 'text-amber-400' : 'text-slate-500'
-                      }`}
-                    />
-                    <span>{item.label}</span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.highlight ? 'text-blue-700' : 'text-slate-500'}`} />
+                    <span className="truncate">{item.label}</span>
                   </div>
-
                   {item.badge && (
-                    <span
-                      className={`text-[9px] px-1.5 py-0.5 rounded border font-mono font-bold ${
-                        isSelected
-                          ? 'bg-white/10 text-white border-white/20'
-                          : item.badgeColor || 'bg-slate-100 text-slate-700 border-slate-200'
-                      }`}
-                    >
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${isActive ? 'bg-white text-blue-700' : 'bg-rose-100 text-rose-800'}`}>
                       {item.badge}
                     </span>
                   )}
@@ -222,23 +136,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </nav>
         </div>
 
-        {/* Footer: Statutory Compliance Badge */}
-        <div className="pt-4 border-t border-slate-100 space-y-2">
-          <div className="p-3 bg-slate-900 text-white rounded-xl text-center space-y-1">
-            <div className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider">
-              MSBTE: 62386 • PCI: 9178
-            </div>
-            <div className="text-xs font-extrabold text-slate-100">
-              Dr. Hiteshkumar Agrawal
-            </div>
-            <div className="text-[10px] text-slate-400">
-              Principal &amp; Authorized Signatory
-            </div>
+        {/* Footer actions */}
+        <div className="p-4 border-t border-slate-200 space-y-2 bg-slate-50/50">
+          <button
+            onClick={onOpenSuperAdmin}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs transition cursor-pointer"
+          >
+            <Crown className="w-3.5 h-3.5 text-amber-600" />
+            <span>Platform Governance</span>
+          </button>
+          <div className="text-[10px] text-center text-slate-400 font-mono">
+            PCI • MSBTE • DTE • AISHE
           </div>
         </div>
       </aside>
     </>
   );
-};
+}
 
 export default Sidebar;
