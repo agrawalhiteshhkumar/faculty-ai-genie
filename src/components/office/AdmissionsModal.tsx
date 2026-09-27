@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { generateOfficialReport } from "@/utils/printReport";
-import { X, Printer, CheckCircle2 } from "lucide-react";
+import React, { useState } from 'react';
+import { generateOfficialReport } from '../../utils/printReport';
+import { X, Printer, CheckCircle2 } from 'lucide-react';
 
 interface StudentAdmissionRecord {
   id: string;
@@ -15,10 +15,10 @@ interface StudentAdmissionRecord {
 }
 
 const DEFAULT_ADMISSIONS: StudentAdmissionRecord[] = [
-  { id: "ADM-01", capMeritNo: 1420, applicationId: "DEN24105539", candidateName: "Aarav Santosh Patil", category: "OPEN", admissionSeatType: "GOPENH", scholarshipScheme: "EBC Rajarshi Shahu" },
-  { id: "ADM-02", capMeritNo: 2185, applicationId: "DEN24105540", candidateName: "Pooja Ramesh Jadhav", category: "OBC", admissionSeatType: "GOBCH", scholarshipScheme: "VJNT/OBC Welfare Freeship" },
-  { id: "ADM-03", capMeritNo: 3410, applicationId: "DEN24105541", candidateName: "Rohan Vinod Shinde", category: "SC", admissionSeatType: "GSCH", scholarshipScheme: "Social Justice Freeship" },
-  { id: "ADM-04", capMeritNo: 4890, applicationId: "DEN24105542", candidateName: "Ananya Nitin Deshmukh", category: "EWS", admissionSeatType: "EWS", scholarshipScheme: "EBC Tuition Concession" }
+  { id: 'ADM-01', capMeritNo: 1420, applicationId: 'DEN24105539', candidateName: 'Aarav Santosh Patil', category: 'OPEN', admissionSeatType: 'GOPENH', scholarshipScheme: 'EBC Rajarshi Shahu' },
+  { id: 'ADM-02', capMeritNo: 2185, applicationId: 'DEN24105540', candidateName: 'Pooja Ramesh Jadhav', category: 'OBC', admissionSeatType: 'GOBCH', scholarshipScheme: 'VJNT/OBC Welfare Freeship' },
+  { id: 'ADM-03', capMeritNo: 3410, applicationId: 'DEN24105541', candidateName: 'Rohan Vinod Shinde', category: 'SC', admissionSeatType: 'GSCH', scholarshipScheme: 'Social Justice Freeship' },
+  { id: 'ADM-04', capMeritNo: 4890, applicationId: 'DEN24105542', candidateName: 'Ananya Nitin Deshmukh', category: 'EWS', admissionSeatType: 'EWS', scholarshipScheme: 'EBC Tuition Concession' },
 ];
 
 export default function AdmissionsModal({
@@ -35,15 +35,15 @@ export default function AdmissionsModal({
   if (!isOpen) return null;
 
   const handlePrintAdmissionsReport = () => {
-    const auditHash = "0x" + Math.random().toString(16).substring(2, 10) + "adm8";
-    onLogAudit("DTE_ADMISSIONS_REGISTER_PRINTED", `Generated official DTE CAP Matrix with hash ${auditHash}`);
+    const auditHash = '0x' + Math.random().toString(16).substring(2, 10) + 'adm8';
+    onLogAudit('DTE_ADMISSIONS_REGISTER_PRINTED', `Generated official DTE CAP Matrix with hash ${auditHash}`);
 
     generateOfficialReport({
-      title: "DTE Maharashtra Centralized Admission Process (CAP) Allocation Matrix",
-      subtitle: "Verified against Admissions Regulating Authority (ARA) & DTE Code: 5539 Norms",
-      regulatoryBody: "DTE",
+      title: 'DTE Maharashtra Centralized Admission Process (CAP) Allocation Matrix',
+      subtitle: 'Verified against Admissions Regulating Authority (ARA) & DTE Code: 5539 Norms',
+      regulatoryBody: 'DTE',
       reportRefNo: `DPKCOP/DTE-CAP/${new Date().getFullYear()}/ADM-01`,
-      dataHeaders: ["Sr", "Merit Rank", "Application ID", "Candidate Name", "Category", "Seat Allotment", "Status"],
+      dataHeaders: ['Sr', 'Merit Rank', 'Application ID', 'Candidate Name', 'Category', 'Seat Allotment', 'Status'],
       dataRows: admissions.map((a, idx) => [
         idx + 1,
         `# ${a.capMeritNo}`,
@@ -51,12 +51,12 @@ export default function AdmissionsModal({
         a.candidateName,
         a.category,
         a.admissionSeatType,
-        "CONFIRMED & ENROLLED",
+        'CONFIRMED & ENROLLED',
       ]),
       summaryMetrics: [
-        { label: "Sanctioned Intake", value: "60 Seats (D.Pharm)" },
-        { label: "Confirmed Enrolments", value: `${admissions.length} Admitted` },
-        { label: "DTE Regional Office", value: "Nashik (RO-5)" },
+        { label: 'Sanctioned Intake', value: '60 Seats (D.Pharm)' },
+        { label: 'Confirmed Enrolments', value: `${admissions.length} Admitted` },
+        { label: 'DTE Regional Office', value: 'Nashik (RO-5)' },
       ],
       auditHash,
     });
@@ -67,17 +67,17 @@ export default function AdmissionsModal({
       <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
         <div className="border-b border-slate-200 px-6 py-4 flex items-center justify-between bg-slate-50">
           <div>
-            <span className="text-xs uppercase font-extrabold text-blue-700 tracking-wider">Student Admissions & Eligibility</span>
-            <h3 className="text-lg font-extrabold text-slate-900 mt-0.5">DTE CAP Allocation Matrix & MahaDBT Wing</h3>
+            <span className="text-xs uppercase font-extrabold text-blue-700 tracking-wider">Student Admissions &amp; Eligibility</span>
+            <h3 className="text-lg font-extrabold text-slate-900 mt-0.5">DTE CAP Allocation Matrix &amp; MahaDBT Wing</h3>
           </div>
-          <button onClick={onClose} className="h-8 w-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-700">
+          <button onClick={onClose} className="h-8 w-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-700 cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="border-b border-slate-200 px-6 py-3 bg-white flex justify-between items-center text-xs">
           <span className="text-slate-500 font-medium">Intake: <strong>60 Approved Seats</strong></span>
-          <button onClick={handlePrintAdmissionsReport} className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center gap-1.5 shadow-sm">
+          <button onClick={handlePrintAdmissionsReport} className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center gap-1.5 shadow-sm cursor-pointer">
             <Printer className="w-3.5 h-3.5" /> Print DTE CAP Matrix (PDF)
           </button>
         </div>
