@@ -365,7 +365,7 @@ export function OfficeAIEngine({ onExit }: OfficeAIEngineProps) {
                 onClick={onExit}
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-white mr-2 transition cursor-pointer"
               >
-                <ChevronLeft className="w-4 h-4" /> &larr; Academic Suite
+                <ChevronLeft className="w-4 h-4" /> Academic Suite
               </button>
             )}
             <div className="h-10 w-10 rounded-xl bg-white p-1 flex items-center justify-center">
@@ -405,7 +405,6 @@ export function OfficeAIEngine({ onExit }: OfficeAIEngineProps) {
             </button>
           </div>
 
-          {/* GATEWAY 1: DESK OFFICER */}
           {portalTab === "OFFICER_LOGIN" && (
             <div className="space-y-4">
               <div>
@@ -450,7 +449,6 @@ export function OfficeAIEngine({ onExit }: OfficeAIEngineProps) {
             </div>
           )}
 
-          {/* GATEWAY 2: PRINCIPAL ADMIN */}
           {portalTab === "PRINCIPAL_LOGIN" && (
             <div className="space-y-4">
               <div>
@@ -495,7 +493,6 @@ export function OfficeAIEngine({ onExit }: OfficeAIEngineProps) {
             </div>
           )}
 
-          {/* GATEWAY 3: SUPER ADMIN */}
           {portalTab === "SUPER_ADMIN" && (
             <div className="space-y-4">
               <div>
@@ -727,7 +724,6 @@ export function OfficeAIEngine({ onExit }: OfficeAIEngineProps) {
       </header>
 
       <main className="p-6 max-w-6xl w-full mx-auto space-y-6 flex-1">
-        {/* VIEW A: ROLE DELEGATION */}
         {activeDesk === "ROLE_MANAGEMENT" && isPrincipal && (
           <div className="space-y-6">
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
@@ -790,7 +786,6 @@ export function OfficeAIEngine({ onExit }: OfficeAIEngineProps) {
           </div>
         )}
 
-        {/* VIEW B: DESK VIEW */}
         {activeDesk !== "OVERVIEW" && activeDesk !== "ROLE_MANAGEMENT" && (
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
@@ -880,7 +875,6 @@ export function OfficeAIEngine({ onExit }: OfficeAIEngineProps) {
           </div>
         )}
 
-        {/* VIEW C: OVERVIEW & LEDGER */}
         {activeDesk === "OVERVIEW" && (
           <div className="space-y-6">
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -923,7 +917,6 @@ export function OfficeAIEngine({ onExit }: OfficeAIEngineProps) {
         )}
       </main>
 
-      {/* Manual Entry Creator Modal */}
       {showAddEntryModal && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
           <div className="bg-white border border-slate-200 rounded-2xl p-6 max-w-md w-full shadow-2xl">
