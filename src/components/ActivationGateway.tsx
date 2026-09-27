@@ -19,12 +19,14 @@ interface ActivationGatewayProps {
   onActivated: (tenantId?: string, license?: any, userRole?: 'ADMIN' | 'FACULTY', facultyEmail?: string) => void;
   onOpenSuperAdmin: () => void;
   onSuperAdminSuccess?: () => void;
+  onOpenOffice?: () => void;
 }
 
 export function ActivationGateway({
   onActivated,
   onOpenSuperAdmin,
   onSuperAdminSuccess,
+  onOpenOffice,
 }: ActivationGatewayProps) {
   const [activeTab, setActiveTab] = useState<'INSTITUTE' | 'FACULTY' | 'SUPERADMIN'>('INSTITUTE');
   
@@ -128,7 +130,7 @@ export function ActivationGateway({
   return (
     <div className="min-h-screen bg-slate-100/80 text-slate-800 flex flex-col font-sans">
       
-      {/* 1. Official Platform Master Header */}
+      {/* Platform Master Header */}
       <header className="w-full bg-white border-b border-slate-200 px-4 sm:px-6 py-3 shadow-sm">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           
@@ -159,7 +161,7 @@ export function ActivationGateway({
             </div>
           </div>
 
-          {/* Institutional Deployment & Action Buttons */}
+          {/* Institutional Deployment & Actions */}
           <div className="flex items-center gap-2.5">
             <div className="hidden md:block text-right mr-1">
               <div className="text-[10px] text-slate-400 font-medium">Provisioned Institutional Client</div>
@@ -172,13 +174,14 @@ export function ActivationGateway({
             </div>
 
             {/* Direct Switch to Institutional Office OS */}
-            <a
-              href="/office"
+            <button
+              type="button"
+              onClick={onOpenOffice}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition cursor-pointer"
             >
               <Building2 className="w-3.5 h-3.5" />
               <span>Office OS &rarr;</span>
-            </a>
+            </button>
 
             {/* SuperAdmin Access Trigger */}
             <button
@@ -200,11 +203,11 @@ export function ActivationGateway({
         </div>
       </header>
 
-      {/* 2. Main Authentication Card */}
+      {/* Main Authentication Card */}
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl space-y-5">
           
-          {/* Digital Signatory Endorsement Card with Clear Alignment */}
+          {/* Digital Signatory Endorsement Card */}
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-xl bg-blue-700 text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0">
@@ -229,7 +232,7 @@ export function ActivationGateway({
               </div>
             </div>
 
-            {/* Aligned Contact Info Bar */}
+            {/* Contact Info Bar */}
             <div className="pt-2 border-t border-slate-200 text-[11px] text-slate-600 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 font-medium">
               <div className="flex items-center gap-1.5 text-slate-700">
                 <Mail className="w-3.5 h-3.5 text-blue-600 shrink-0" />
@@ -242,7 +245,6 @@ export function ActivationGateway({
             </div>
           </div>
 
-          {/* Heading with Statutory Bodies */}
           <div className="text-center space-y-1.5">
             <h2 className="text-xl font-black text-slate-900 tracking-tight">
               Academic OS Gateway
