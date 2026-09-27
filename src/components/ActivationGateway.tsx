@@ -159,9 +159,9 @@ export function ActivationGateway({
             </div>
           </div>
 
-          {/* Institutional Deployment & SuperAdmin Gateway Trigger */}
-          <div className="flex items-center gap-3">
-            <div className="hidden md:block text-right">
+          {/* Institutional Deployment & Action Buttons */}
+          <div className="flex items-center gap-2.5">
+            <div className="hidden md:block text-right mr-1">
               <div className="text-[10px] text-slate-400 font-medium">Provisioned Institutional Client</div>
               <div className="text-xs font-bold text-slate-700">
                 D. P. Kharde Navjeevan College of Pharmacy, Sinnar
@@ -171,6 +171,16 @@ export function ActivationGateway({
               </div>
             </div>
 
+            {/* Direct Switch to Institutional Office OS */}
+            <a
+              href="/office"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition cursor-pointer"
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Office OS &rarr;</span>
+            </a>
+
+            {/* SuperAdmin Access Trigger */}
             <button
               type="button"
               onClick={() => {
@@ -232,7 +242,7 @@ export function ActivationGateway({
             </div>
           </div>
 
-          {/* Heading with Updated Statutory Bodies (AICTE completely removed) */}
+          {/* Heading with Statutory Bodies */}
           <div className="text-center space-y-1.5">
             <h2 className="text-xl font-black text-slate-900 tracking-tight">
               Academic OS Gateway
