@@ -20,6 +20,9 @@ import { DailyDiaryModal } from './components/DailyDiaryModal';
 import { SearchAssistantModal } from './components/SearchAssistantModal';
 import { CriticalSuccessTestModal } from './components/CriticalSuccessTestModal';
 
+// Integrated Institutional Office OS Desks
+import { OfficeAIEngine } from './components/views/OfficeAIEngine';
+
 // Statutory Modules (Phases 1-7)
 import CohortSelector from './components/common/CohortSelector';
 import TeachingDiaryView from './components/common/TeachingDiaryView';
@@ -61,9 +64,8 @@ import {
   AuditLogEntry,
 } from './types';
 
-import { Building2 } from 'lucide-react';
+import { Building } from 'lucide-react';
 
-// Curricular Schemas (PCI ER-2020 Statutory Structure)
 const DEFAULT_COHORTS: AcademicClassCohort[] = [
   {
     id: 'FY_DPHARM',
@@ -91,7 +93,6 @@ const DEFAULT_COHORTS: AcademicClassCohort[] = [
   },
 ];
 
-// Clean Institutional Default Workload
 const DEFAULT_WORKLOADS: FacultyWorkloadAllocation[] = [
   {
     facultyId: 'fac-001',
@@ -163,7 +164,7 @@ export default function App() {
   const [isSuperAdminLoginModalOpen, setIsSuperAdminLoginModalOpen] = useState(false);
   const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
 
-  // Institution Profile (Loaded from Storage or Blank Slate)
+  // Institution Profile
   const [institution, setInstitution] = useState<InstitutionProfile | null>(() => {
     try {
       const saved = localStorage.getItem('faculty_genie_institution');
@@ -182,7 +183,6 @@ export default function App() {
     }
   });
 
-  // Clean Slate Roster (Starts Empty unless Saved)
   const [facultyList, setFacultyList] = useState<FacultyMaster[]>(() => {
     try {
       const saved = localStorage.getItem('faculty_genie_faculty');
@@ -360,7 +360,6 @@ export default function App() {
     }
   };
 
-  // Optional Demo Dataset Loader
   const handleLoadSampleDataset = async () => {
     const sampleProfile: InstitutionProfile = {
       id: 'inst-dpkcop',
@@ -442,6 +441,7 @@ export default function App() {
     localStorage.setItem('faculty_genie_student_marks', JSON.stringify(marks));
   };
 
+  // Super Admin Priority View
   if (isSuperAdminViewOpen) {
     return <SuperAdminDashboard onExit={handleExitSuperAdmin} />;
   }
@@ -587,7 +587,6 @@ export default function App() {
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-x-hidden space-y-6">
-          {/* Zero-State Warning Banner if Students or Faculty are Empty */}
           {safeStudents.length === 0 && (
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-900">
               <div className="text-xs">
@@ -596,7 +595,7 @@ export default function App() {
               </div>
               <button
                 onClick={() => setActiveStatutoryTab('WORKLOAD_ROSTER')}
-                className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition whitespace-nowrap"
+                className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition whitespace-nowrap cursor-pointer"
               >
                 Import Roster Now &rarr;
               </button>
@@ -613,13 +612,14 @@ export default function App() {
                 <span className="text-xs text-slate-400">Statutory Pharmacy Academic Controls</span>
               </div>
               <div className="flex items-center gap-2 self-start md:self-auto">
-                <a
-                  href="/office"
+                <button
+                  type="button"
+                  onClick={() => setCurrentTab('OFFICE_DESKS')}
                   className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-colors shadow-md inline-flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Building2 className="w-3.5 h-3.5" />
-                  Institutional Office OS &rarr;
-                </a>
+                  <Building className="w-3.5 h-3.5" />
+                  Institutional Desks &rarr;
+                </button>
                 <button
                   onClick={() => setIsDossierModalOpen(true)}
                   className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl transition-colors shadow-md cursor-pointer"
@@ -717,7 +717,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Statutory Module Rendering */}
           {activeStatutoryTab === 'WORKLOAD_ROSTER' && (
             <RosterWorkloadManager
               cohorts={DEFAULT_COHORTS}
@@ -797,6 +796,11 @@ export default function App() {
                   }}
                   onRunSuccessTest={() => setIsSuccessTestModalOpen(true)}
                 />
+              )}
+
+              {/* INTEGRATED INSTITUTIONAL OFFICE DESKS VIEW */}
+              {currentTab === 'OFFICE_DESKS' && (
+                <OfficeAIEngine onExit={() => setCurrentTab('HOME')} />
               )}
 
               {currentTab === 'MY_WORK' && (
